@@ -5,11 +5,10 @@ buildscript {
   repositories {
     google()
     mavenCentral()
-    jcenter()
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:7.2.0'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -29,13 +28,16 @@ def getExtOrIntegerDefault(name) {
 android {
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
   defaultConfig {
-    minSdkVersion 16
+    minSdkVersion 21
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
     versionCode 1
     versionName "1.0"
-    
+
+    multiDexEnabled true //important
+    ndk {
+      abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
+    }
   }
-  
   buildTypes {
     release {
       minifyEnabled false
@@ -48,11 +50,15 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
+  sourceSets {
+    main {
+      assets.srcDirs += "$buildDir/generated/assets"
+    }
+  }
 }
 
 repositories {
   mavenCentral()
-  jcenter()
   google()
 
   def found = false
@@ -114,12 +120,26 @@ repositories {
   }
 
   if (!found) {
-    throw new GradleException(
+    throw new FileNotFoundException(
             "${project.name}: unable to locate React Native android sources. " +
                     "Ensure you have you installed React Native as a dependency in your project and try again."
     )
   }
 }
+
+// Generate UUIDs for each models contained in android/src/main/assets/
+tasks.register('genUUID') {
+  doLast {
+    fileTree(dir: "$projectDir/src/main/assets", exclude: ['*/*']).visit { fileDetails ->
+      def odir = file("$buildDir/generated/assets/$fileDetails.relativePath")
+      def ofile = file("$odir/uuid")
+
+      mkdir odir
+      ofile.text = UUID.randomUUID().toString()
+    }
+  }
+}
+preBuild.dependsOn genUUID
 
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
@@ -127,4 +147,7 @@ dependencies {
   // noinspection GradleDynamicVersion
   api 'com.facebook.react:react-native:+'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+  implementation 'net.java.dev.jna:jna:5.8.0@aar'
+  implementation group: 'com.alphacephei', name: 'vosk-android', version: '0.3.32'
 }

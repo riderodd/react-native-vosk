@@ -1,7 +1,7 @@
 {
   "name": "react-native-vosk",
   "version": "0.1.0",
-  "description": "",
+  "description": "Voice recognition module for react native using Vosk library",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -36,13 +36,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/kingdcreations/react-native-vosk",
-  "author": "KingDCreations <mthais.web@gmail.com> (https://github.com/kingdcreations)",
+  "repository": "https://github.com/riderodd/react-native-vosk",
+  "author": "Thais Marcon <mthais.web@gmail.com> (https://github.com/kingdcreations)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kingdcreations/react-native-vosk/issues"
+    "url": "https://github.com/riderodd/react-native-vosk/issues"
   },
-  "homepage": "https://github.com/kingdcreations/react-native-vosk#readme",
+  "homepage": "https://github.com/riderodd/react-native-vosk#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
