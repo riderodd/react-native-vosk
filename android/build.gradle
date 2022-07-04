@@ -149,5 +149,5 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   implementation 'net.java.dev.jna:jna:5.12.1@aar'
-  implementation group: 'com.alphacephei', name: 'vosk-android', version: '0.3.32'
+  implementation group: 'com.alphacephei', name: 'vosk-android', version: '0.3.38'
 }
