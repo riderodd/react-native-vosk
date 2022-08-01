@@ -22,7 +22,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = VoskExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = VoskExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VoskExample/main.m; sourceTree = "<group>"; };
-		33FE8A092892A4A00014344C /* model-fr-fr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "model-fr-fr"; path = "../model-fr-fr"; sourceTree = "<group>"; };
+		33FE8A092892A4A00014344C /* model-fr-fr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "model-fr-fr"; path = "../android/app/src/main/assets/model-fr-fr"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-VoskExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.debug.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-VoskExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.release.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-VoskExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VoskExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
