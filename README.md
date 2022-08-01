@@ -16,22 +16,22 @@ Then, unzip the model in your app folder. If you just need to use the iOS versio
 
 ### Android
 In Android Studio, open the project manager, right-click on your project folder and New > Folder > Assets folder.
-![Android Studio assets folder creation](https://raw.githubusercontent.com/riderodd/react-native-vosk/feat/ios/docs/android_studio_assets_folder_creation.png)
+![Android Studio assets folder creation](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_folder_creation.png)
 
 Then put the model folder inside the assets folder created. In your file tree it should be located in android\app\src\main\assets. So, if you downloaded the french model named model-fr-fr, you should access the model by going to android\app\src\main\assets\model-fr-fr. In Android studio, your project structure should be like that:
-![Android Studio final project structure](https://raw.githubusercontent.com/riderodd/react-native-vosk/feat/ios/docs/android_studio_project_structure.png)
+![Android Studio final project structure](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_project_structure.png)
 
 You can import as many models as you want.
 
 ### iOS
 In XCode, right-click on your project folder, and click on "Add files to [your project name]".
-![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/feat/ios/docs/xcode_add_files_to_folder.png)
+![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png)
 
 Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it.
-![XCode chose model folder](https://raw.githubusercontent.com/riderodd/react-native-vosk/feat/ios/docs/xcode_chose_model_folder.png)
+![XCode chose model folder](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png)
 
 That's all. The model folder should appear in your project. When you click on it, your project target should be checked (see below).
-![XCode full settings screenshot](https://raw.githubusercontent.com/riderodd/react-native-vosk/feat/ios/docs/xcode_full_settings_screenshot.png)
+![XCode full settings screenshot](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png)
 
 ## Usage
 
