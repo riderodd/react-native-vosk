@@ -24,13 +24,21 @@ Then put the model folder inside the assets folder created. In your file tree it
 You can import as many models as you want.
 
 ### iOS
+In order to let the project work, you're going to need the iOS library. Mail contact@alphacephei.com to get the libraries. You're going to have a libvosk.xcframework file (or folder for not mac users), just copy it in the ios folder of the module (node_modules/react-native-vosk/ios/libvosk.xcframework). Then run in your root project:
+```sh
+npm run pods
+```
+
 In XCode, right-click on your project folder, and click on "Add files to [your project name]".
+
 ![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png)
 
 Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it.
+
 ![XCode chose model folder](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png)
 
 That's all. The model folder should appear in your project. When you click on it, your project target should be checked (see below).
+
 ![XCode full settings screenshot](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png)
 
 ## Usage
