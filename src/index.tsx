@@ -37,8 +37,9 @@ export default class Vosk {
   // Public functions
   loadModel = (path: string) => VoskModule.loadModel(path);
 
+  currentRegisteredEvents: EmitterSubscription[] = [];
+
   start = (grammar: string[] | null = null) : Promise<String> => {
-    const currentRegisteredEvents: EmitterSubscription[] = [];
 
     return new Promise<String>((resolve, reject) => {
       // Check for permission
@@ -47,14 +48,10 @@ export default class Vosk {
           if (!granted) return reject('Audio record permission denied');
 
           // Setup events
-          const onResult = (e: VoskEvent) => resolve(e.data);
-          const onFinalResult = (e: VoskEvent) => resolve(e.data);
-          const onError = (e: VoskEvent) => reject(e.data);
-          const onTimeout = () => reject('timeout');
-          currentRegisteredEvents.push(eventEmitter.addListener('onResult', onResult));
-          currentRegisteredEvents.push(eventEmitter.addListener('onFinalResult', onFinalResult));
-          currentRegisteredEvents.push(eventEmitter.addListener('onError', onError));
-          currentRegisteredEvents.push(eventEmitter.addListener('onTimeout', onTimeout));
+          this.currentRegisteredEvents.push(eventEmitter.addListener('onResult', (e: VoskEvent) => resolve(e.data)));
+          this.currentRegisteredEvents.push(eventEmitter.addListener('onFinalResult', (e: VoskEvent) => resolve(e.data)));
+          this.currentRegisteredEvents.push(eventEmitter.addListener('onError', (e: VoskEvent) => reject(e.data)));
+          this.currentRegisteredEvents.push(eventEmitter.addListener('onTimeout', () => reject('timeout')));
 
           // Start recognition
           VoskModule.start(grammar);
@@ -63,12 +60,12 @@ export default class Vosk {
           reject(e);
         });
     }).finally(() => {
-      // Clean event listeners
-      currentRegisteredEvents.forEach(subscription => subscription.remove());
+      this.cleanListeners();
     });
   };
 
   stop = () => {
+    this.cleanListeners();
     VoskModule.stop();
   };
 
@@ -94,4 +91,10 @@ export default class Vosk {
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   };
+
+  private cleanListeners = () => {
+    // Clean event listeners
+    this.currentRegisteredEvents.forEach(subscription => subscription.remove());
+    this.currentRegisteredEvents = [];
+  }
 }
