@@ -66,6 +66,9 @@ class Vosk: RCTEventEmitter {
     /// Load a Vosk model
     @objc(loadModel:withResolver:withRejecter:)
     func loadModel(name: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        if (currentModel != nil) {
+            currentModel = nil; // deinit model
+        }
         currentModel = VoskModel(name: name)
         resolve(name)
     }

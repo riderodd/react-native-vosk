@@ -53,7 +53,6 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
    * @return the recognized text or null if something went wrong
    */
   private fun getHypothesisText(hypothesis: String): String? {
-
     // Hypothesis is in the form: '{text: "recognized text"}'
     return try {
       val res = JSONObject(hypothesis)
@@ -94,6 +93,10 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
+    if (this.model != null) {
+      this.model!!.close(); // unload model
+      this.model = null;
+    }
     StorageService.unpack(context, path, "models",
       { model: Model? ->
         this.model = model
