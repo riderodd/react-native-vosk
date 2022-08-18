@@ -131,10 +131,12 @@ repositories {
 tasks.register('genUUID') {
   doLast {
     fileTree(dir: "$rootDir/app/src/main/assets", exclude: ['*/*']).visit { fileDetails ->
-      def odir = file("$rootDir/app/src/main/assets/$fileDetails.relativePath")
-      def ofile = file("$odir/uuid")
-      mkdir odir
-      ofile.text = UUID.randomUUID().toString()
+      if (fileDetails.directory) {
+        def odir = file("$rootDir/app/src/main/assets/$fileDetails.relativePath")
+        def ofile = file("$odir/uuid")
+        mkdir odir
+        ofile.text = UUID.randomUUID().toString()
+      }
     }
   }
 }
