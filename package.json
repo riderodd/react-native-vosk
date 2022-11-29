@@ -1,6 +1,6 @@
 {
   "name": "react-native-vosk",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Speech recognition module for react native using Vosk library",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -61,8 +61,8 @@
     "jest": "^28.1.1",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
-    "react": "17.0.2",
-    "react-native": "0.68.2",
+    "react": "^18.2.0",
+    "react-native": "^0.70.3",
     "react-native-builder-bob": "^0.18.3",
     "release-it": "^15.0.0",
     "typescript": "^4.5.2"
@@ -147,5 +147,6 @@
         }
       ]
     ]
-  }
+  },
+  "dependencies": {}
 }
