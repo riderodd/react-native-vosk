@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Button } from 'react-native';
 import Vosk from 'react-native-vosk';
 
-export default function App() {
+export default function App(): JSX.Element {
   const [ready, setReady] = useState<Boolean>(true);
   const [result, setResult] = useState<String | undefined>();
 
@@ -16,12 +16,13 @@ export default function App() {
       .then(() => setReady(true))
       .catch((e: any) => console.log(e));
 
-    const resultEvent = vosk.onResult((res) => {
+    const resultEvent = vosk.onResult((res: any) => {
       console.log('A onResult event has been caught: ' + res.data);
     });
 
     return () => {
       resultEvent.remove();
+      vosk.unload();
     };
   }, []);
 

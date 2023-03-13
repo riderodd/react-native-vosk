@@ -142,4 +142,18 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
       speechService = null
     }
   }
+
+  @ReactMethod
+  fun unload() {
+
+    if (this.model != null) {
+      this.model!!.close(); // unload model
+      this.model = null;
+    }
+
+    if (speechService != null) {
+      speechService!!.stop();
+      speechService!!.shutdown();
+    }
+  }
 }

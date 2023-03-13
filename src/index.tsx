@@ -69,6 +69,11 @@ export default class Vosk {
     VoskModule.stop();
   };
 
+  unload = () => {
+    this.cleanListeners();
+    VoskModule.unload();
+  };
+
   // Event listeners builders
   onResult = (onResult: (e: VoskEvent) => void) : EventSubscription => {
     return eventEmitter.addListener('onResult', onResult);
