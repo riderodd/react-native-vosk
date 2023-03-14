@@ -132,6 +132,13 @@ class Vosk: RCTEventEmitter {
         }
     }
     
+    /// Unload speech recognition and model
+    @objc(unload) func unload() -> Void {
+        stopInternal(withoutEvents: false)
+        vosk_model_free(currentModel!.model)
+        vosk_spk_model_free(currentModel!.spkModel)
+    }
+    
     /// Stop speech recognition if started
     @objc(stop) func stop() -> Void {
         // stop engines and send onFinalResult event

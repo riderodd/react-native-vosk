@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
 import Vosk from 'react-native-vosk';
@@ -7,7 +7,7 @@ export default function App(): JSX.Element {
   const [ready, setReady] = useState<Boolean>(true);
   const [result, setResult] = useState<String | undefined>();
 
-  const vosk = new Vosk();
+  const vosk = useRef(new Vosk()).current;
 
   useEffect(() => {
     vosk
@@ -24,7 +24,7 @@ export default function App(): JSX.Element {
       resultEvent.remove();
       vosk.unload();
     };
-  }, []);
+  }, [vosk]);
 
   const grammar = ['gauche', 'droite', '[unk]'];
   // const grammar = ['left', 'right', '[unk]'];
@@ -36,7 +36,7 @@ export default function App(): JSX.Element {
 
     vosk
       .start(grammar)
-      .then((res: any) => {
+      .then((res: string) => {
         console.log('Result is: ' + res);
         setResult(res);
       })
