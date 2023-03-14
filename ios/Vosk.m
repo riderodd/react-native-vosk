@@ -11,6 +11,8 @@ RCT_EXTERN_METHOD(start:(NSArray)grammar)
 
 RCT_EXTERN_METHOD(stop)
 
+RCT_EXTERN_METHOD(unload)
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

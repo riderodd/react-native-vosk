@@ -1,21 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
 import Vosk from 'react-native-vosk';
 
 export default function App(): JSX.Element {
-  const [ready, setReady] = useState<Boolean>(true);
+  const [ready, setReady] = useState<Boolean>(false);
+  const [recognizing, setRecognizing] = useState<Boolean>(false);
   const [result, setResult] = useState<String | undefined>();
 
   const vosk = useRef(new Vosk()).current;
 
-  useEffect(() => {
+  const load = useCallback(() => {
     vosk
       .loadModel('model-fr-fr')
       // .loadModel('model-en-us')
       .then(() => setReady(true))
       .catch((e: any) => console.log(e));
+  }, [vosk]);
 
+  const unload = useCallback(() => {
+    vosk.unload();
+    setReady(false);
+  }, [vosk]);
+
+  useEffect(() => {
     const resultEvent = vosk.onResult((res: { data: String }) => {
       console.log(res);
 
@@ -24,7 +32,6 @@ export default function App(): JSX.Element {
 
     return () => {
       resultEvent.remove();
-      vosk.unload();
     };
   }, [vosk]);
 
@@ -32,9 +39,10 @@ export default function App(): JSX.Element {
   // const grammar = ['left', 'right', '[unk]'];
 
   const record = () => {
+    if (!ready) return;
     console.log('Starting recognition...');
 
-    setReady(false);
+    setRecognizing(true);
 
     vosk
       .start(grammar)
@@ -46,16 +54,21 @@ export default function App(): JSX.Element {
         console.log('Error: ' + e);
       })
       .finally(() => {
-        setReady(true);
+        setRecognizing(false);
       });
   };
 
   return (
     <View style={styles.container}>
       <Button
+        onPress={ready ? unload : load}
+        title={ready ? "Unload model" : "Load model"}
+        color="blue"
+      />
+      <Button
         onPress={record}
         title="Record"
-        disabled={!ready}
+        disabled={ready === false || recognizing === true}
         color="#841584"
       />
       <Text>Recognized word:</Text>
