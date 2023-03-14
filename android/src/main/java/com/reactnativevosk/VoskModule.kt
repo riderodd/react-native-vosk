@@ -92,6 +92,7 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
+    cleanModel();
     StorageService.unpack(context, path, "models",
       { model: Model? ->
         this.model = model
