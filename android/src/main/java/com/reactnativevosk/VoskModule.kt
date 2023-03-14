@@ -13,6 +13,7 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
   private var model: Model? = null
   private var speechService: SpeechService? = null
   private var context: ReactApplicationContext? = reactContext
+  private var recognizer: Recognizer? = null
 
   override fun getName(): String {
     return "Vosk"
@@ -23,10 +24,8 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     val text = getHypothesisText(hypothesis)
 
     // Stop recording if data found
-    if (text != null && text.isNotEmpty() && speechService != null) {
-      speechService!!.stop()
-      speechService = null
-      // Display data
+    if (text != null && text.isNotEmpty()) {
+      cleanRecognizer();
       sendEvent("onResult", text)
     }
   }
@@ -93,10 +92,7 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
-    if (this.model != null) {
-      this.model!!.close(); // unload model
-      this.model = null;
-    }
+    cleanModel();
     StorageService.unpack(context, path, "models",
       { model: Model? ->
         this.model = model
@@ -118,13 +114,13 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
       sendEvent("onError", "Recognizer is already in use")
     } else {
       try {
-        val rec =
+        recognizer =
           if (grammar != null)
             Recognizer(model, 16000.0f, makeGrammar(grammar))
           else
             Recognizer(model, 16000.0f)
 
-        speechService = SpeechService(rec, 16000.0f)
+        speechService = SpeechService(recognizer, 16000.0f)
         speechService!!.startListening(this)
         sendEvent("onStart")
 
@@ -133,27 +129,33 @@ class VoskModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
       }
     }
   }
-
-  @ReactMethod
-  fun stop() {
-
+  private fun cleanRecognizer() {
     if (speechService != null) {
       speechService!!.stop()
+      speechService!!.shutdown();
       speechService = null
+    }
+    if (recognizer != null) {
+      recognizer!!.close();
+      recognizer = null;
+    }
+  }
+
+  private fun cleanModel() {
+    if (this.model != null) {
+      this.model!!.close();
+      this.model = null;
     }
   }
 
   @ReactMethod
+  fun stop() {
+    cleanRecognizer();
+  }
+
+  @ReactMethod
   fun unload() {
-
-    if (this.model != null) {
-      this.model!!.close(); // unload model
-      this.model = null;
-    }
-
-    if (speechService != null) {
-      speechService!!.stop();
-      speechService!!.shutdown();
-    }
+    cleanRecognizer();
+    cleanModel();
   }
 }
