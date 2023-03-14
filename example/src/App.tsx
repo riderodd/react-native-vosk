@@ -62,7 +62,7 @@ export default function App(): JSX.Element {
     <View style={styles.container}>
       <Button
         onPress={ready ? unload : load}
-        title={ready ? "Unload model" : "Load model"}
+        title={ready ? 'Unload model' : 'Load model'}
         color="blue"
       />
       <Button
