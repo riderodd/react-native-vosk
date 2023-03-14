@@ -16,7 +16,9 @@ export default function App(): JSX.Element {
       .then(() => setReady(true))
       .catch((e: any) => console.log(e));
 
-    const resultEvent = vosk.onResult((res: any) => {
+    const resultEvent = vosk.onResult((res: { data: String }) => {
+      console.log(res);
+
       console.log('A onResult event has been caught: ' + res.data);
     });
 
