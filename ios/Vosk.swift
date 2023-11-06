@@ -80,7 +80,8 @@ class Vosk: RCTEventEmitter {
         
         do {
             // Ask the user for permission to use the mic if required then start the engine.
-            try audioSession.setCategory(.record)
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             
             if (grammar != nil && grammar!.isEmpty == false) {
                 let jsonGrammar = try! JSONEncoder().encode(grammar)
