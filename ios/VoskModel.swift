@@ -26,18 +26,8 @@ public final class VoskModel {
             model = vosk_model_new(modelPath)
         }
 
-        // Get the URL to the resource bundle within the bundle
-        // of the current class.
-        guard let resourceBundleURL = appBundle.url(
-            forResource: "Vosk", withExtension: "bundle")
-            else { fatalError("Vosk.bundle not found!") }
-        
-        // Create a bundle object for the bundle found at that URL.
-        guard let resourceBundle = Bundle(url: resourceBundleURL)
-            else { fatalError("Cannot access Vosk.bundle!") }
-        
-        if let resourcePath = resourceBundle.resourcePath {
-            let spkModelPath = resourcePath + "/vosk-model-spk-0.4"
+        // Get the URL to the spk model inside this pod
+        if let spkModelPath = appBundle.path(forResource: "vosk-model-spk-0.4", ofType: nil) {
             spkModel = vosk_spk_model_new(spkModelPath)
         }
     }

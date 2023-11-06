@@ -1,4 +1,4 @@
-package com.example.reactnativevosk;
+package com.reactnativevoskexample;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
