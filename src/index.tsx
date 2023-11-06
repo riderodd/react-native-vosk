@@ -1,6 +1,6 @@
 import {
-  EmitterSubscription,
-  EventSubscription,
+  type EmitterSubscription,
+  type EventSubscription,
   NativeEventEmitter,
   NativeModules,
   PermissionsAndroid,
@@ -13,7 +13,7 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-  const VoskModule = NativeModules.Vosk
+const VoskModule = NativeModules.Vosk
   ? NativeModules.Vosk
   : new Proxy(
       {},
@@ -29,7 +29,7 @@ type VoskEvent = {
    * Event datas
    */
   data: string;
-}
+};
 
 const eventEmitter = new NativeEventEmitter(VoskModule);
 
@@ -39,8 +39,7 @@ export default class Vosk {
 
   currentRegisteredEvents: EmitterSubscription[] = [];
 
-  start = (grammar: string[] | null = null) : Promise<String> => {
-
+  start = (grammar: string[] | null = null): Promise<String> => {
     return new Promise<String>((resolve, reject) => {
       // Check for permission
       this.requestRecordPermission()
@@ -48,10 +47,24 @@ export default class Vosk {
           if (!granted) return reject('Audio record permission denied');
 
           // Setup events
-          this.currentRegisteredEvents.push(eventEmitter.addListener('onResult', (e: VoskEvent) => resolve(e.data)));
-          this.currentRegisteredEvents.push(eventEmitter.addListener('onFinalResult', (e: VoskEvent) => resolve(e.data)));
-          this.currentRegisteredEvents.push(eventEmitter.addListener('onError', (e: VoskEvent) => reject(e.data)));
-          this.currentRegisteredEvents.push(eventEmitter.addListener('onTimeout', () => reject('timeout')));
+          this.currentRegisteredEvents.push(
+            eventEmitter.addListener('onResult', (e: VoskEvent) =>
+              resolve(e.data)
+            )
+          );
+          this.currentRegisteredEvents.push(
+            eventEmitter.addListener('onFinalResult', (e: VoskEvent) =>
+              resolve(e.data)
+            )
+          );
+          this.currentRegisteredEvents.push(
+            eventEmitter.addListener('onError', (e: VoskEvent) =>
+              reject(e.data)
+            )
+          );
+          this.currentRegisteredEvents.push(
+            eventEmitter.addListener('onTimeout', () => reject('timeout'))
+          );
 
           // Start recognition
           VoskModule.start(grammar);
@@ -75,22 +88,24 @@ export default class Vosk {
   };
 
   // Event listeners builders
-  onResult = (onResult: (e: VoskEvent) => void) : EventSubscription => {
+  onResult = (onResult: (e: VoskEvent) => void): EventSubscription => {
     return eventEmitter.addListener('onResult', onResult);
   };
-  onFinalResult = (onFinalResult: (e: VoskEvent) => void) : EventSubscription => {
+  onFinalResult = (
+    onFinalResult: (e: VoskEvent) => void
+  ): EventSubscription => {
     return eventEmitter.addListener('onFinalResult', onFinalResult);
   };
-  onError = (onError: (e: VoskEvent) => void) : EventSubscription => {
+  onError = (onError: (e: VoskEvent) => void): EventSubscription => {
     return eventEmitter.addListener('onError', onError);
   };
-  onTimeout = (onTimeout: (e: VoskEvent) => void) : EventSubscription => {
+  onTimeout = (onTimeout: (e: VoskEvent) => void): EventSubscription => {
     return eventEmitter.addListener('onTimeout', onTimeout);
   };
 
   // Private functions
   private requestRecordPermission = async () => {
-    if (Platform.OS === "ios") return true;
+    if (Platform.OS === 'ios') return true;
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO!
     );
@@ -99,7 +114,9 @@ export default class Vosk {
 
   private cleanListeners = () => {
     // Clean event listeners
-    this.currentRegisteredEvents.forEach(subscription => subscription.remove());
+    this.currentRegisteredEvents.forEach((subscription) =>
+      subscription.remove()
+    );
     this.currentRegisteredEvents = [];
-  }
+  };
 }
