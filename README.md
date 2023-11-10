@@ -39,26 +39,33 @@ That's all. The model folder should appear in your project. When you click on it
 ## Usage
 
 ```js
-import VoiceRecognition from 'react-native-voice-recognition';
+import Vosk from 'react-native-vosk';
 
 // ...
 
-const voiceRecognition = new VoiceRecognition();
+const voiceRecognition = new Vosk();
 
-voiceRecognition.loadModel('model-fr-fr').then(() => {
+voiceRecognition.loadModel('model-en-en').then(() => {
     // we can use promise...
+    const options = ['left', 'right', '[unk]'];
     voiceRecognition
-        .start()
-        .then((res: any) => {
-            console.log('Result is: ' + res);
-        })
+      .start(options)
+      .then((res: string) => {
+        console.log('Result is: ' + res);
+      })
+      .catch((e: any) => {
+        console.log('Error: ' + e);
+      })
+      .finally(() => {
+        console.log("Recognition is complete")
+      });
 
     // ... or events
-    const resultEvent = vosk.onResult((res) => {
+    const resultEvent = voiceRecognition.onResult((res) => {
       console.log('A onResult event has been caught: ' + res.data);
     });
 
-    // Don't forget to call resultEvent.remove(); when needed
+    // Don't forget to call resultEvent.remove(); to delete the listener
 }).catch(e => {
     console.error(e);
 })
