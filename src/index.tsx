@@ -39,42 +39,44 @@ export default class Vosk {
 
   currentRegisteredEvents: EmitterSubscription[] = [];
 
-  start = (grammar: string[] | null = null): Promise<String> => {
-    return new Promise<String>((resolve, reject) => {
-      // Check for permission
-      this.requestRecordPermission()
-        .then((granted) => {
-          if (!granted) return reject('Audio record permission denied');
+  start = async (grammar: string[] | null = null): Promise<string> => {
+    try {
+      return await new Promise<string>((resolve, reject) => {
+        // Check for permission
+        this.requestRecordPermission()
+          .then((granted) => {
+            if (!granted) return reject('Audio record permission denied');
 
-          // Setup events
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onResult', (e: VoskEvent) =>
-              resolve(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onFinalResult', (e: VoskEvent) =>
-              resolve(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onError', (e: VoskEvent) =>
-              reject(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onTimeout', () => reject('timeout'))
-          );
+            // Setup events
+            this.currentRegisteredEvents.push(
+              eventEmitter.addListener('onResult', (e: VoskEvent) =>
+                resolve(e.data)
+              )
+            );
+            this.currentRegisteredEvents.push(
+              eventEmitter.addListener('onFinalResult', (e: VoskEvent) =>
+                resolve(e.data)
+              )
+            );
+            this.currentRegisteredEvents.push(
+              eventEmitter.addListener('onError', (e: VoskEvent) =>
+                reject(e.data)
+              )
+            );
+            this.currentRegisteredEvents.push(
+              eventEmitter.addListener('onTimeout', () => reject('timeout'))
+            );
 
-          // Start recognition
-          VoskModule.start(grammar);
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    }).finally(() => {
+            // Start recognition
+            VoskModule.start(grammar);
+          })
+          .catch((e_3) => {
+            reject(e_3);
+          });
+      });
+    } finally {
       this.cleanListeners();
-    });
+    }
   };
 
   stop = () => {

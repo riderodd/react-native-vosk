@@ -31,15 +31,21 @@ class VoskModule(reactContext: ReactApplicationContext) :
     val text = getHypothesisText(hypothesis)
 
     // Stop recording if data found
-    if (text != null && text.isNotEmpty()) {
-      cleanRecognizer();
+    if (!text.isNullOrEmpty()) {
+      cleanRecognizer()
       sendEvent("onResult", text)
     }
   }
 
   override fun onFinalResult(hypothesis: String) {
+    // Get text data from string object
     val text = getHypothesisText(hypothesis)
-    if (text!!.isNotEmpty()) sendEvent("onFinalResult", text)
+
+    // Stop recording if data found
+    if (!text.isNullOrEmpty()) {
+      cleanRecognizer()
+      sendEvent("onFinalResult", text)
+    }
   }
 
   override fun onPartialResult(hypothesis: String) {
@@ -99,7 +105,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
-    cleanModel();
+    cleanModel()
     StorageService.unpack(context, path, "models",
       { model: Model? ->
         this.model = model
@@ -136,34 +142,35 @@ class VoskModule(reactContext: ReactApplicationContext) :
       }
     }
   }
+
   private fun cleanRecognizer() {
     if (speechService != null) {
       speechService!!.stop()
-      speechService!!.shutdown();
+      speechService!!.shutdown()
       speechService = null
     }
     if (recognizer != null) {
-      recognizer!!.close();
-      recognizer = null;
+      recognizer!!.close()
+      recognizer = null
     }
   }
 
   private fun cleanModel() {
     if (this.model != null) {
-      this.model!!.close();
-      this.model = null;
+      this.model!!.close()
+      this.model = null
     }
   }
 
   @ReactMethod
   fun stop() {
-    cleanRecognizer();
+    cleanRecognizer()
   }
 
   @ReactMethod
   fun unload() {
-    cleanRecognizer();
-    cleanModel();
+    cleanRecognizer()
+    cleanModel()
   }
 
   companion object {
