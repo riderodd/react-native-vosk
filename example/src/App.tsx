@@ -15,54 +15,55 @@ export default function App(): JSX.Element {
       .loadModel('model-fr-fr')
       // .loadModel('model-en-us')
       .then(() => setReady(true))
-      .catch((e: any) => console.log(e));
+      .catch((e) => console.error(e));
   }, [vosk]);
 
   const unload = useCallback(() => {
     vosk.unload();
     setReady(false);
+    setRecognizing(false);
   }, [vosk]);
 
   useEffect(() => {
-    const resultEvent = vosk.onResult((res: { data: string }) => {
+    const resultEvent = vosk.onResult((res) => {
       console.log('A onResult event has been caught: ' + res.data);
       setResult(res.data);
-      setRecognizing(false);
     });
 
-    const finalResultEvent = vosk.onFinalResult((res: { data: string }) => {
-      console.log('A onFinalResult event has been caught: ' + res.data);
+    const partialResultEvent = vosk.onPartialResult((res) => {
       setResult(res.data);
-      setRecognizing(false);
+    });
+
+    const errorEvent = vosk.onError((res) => {
+      console.error(res.data);
+    });
+
+    const timeoutEvent = vosk.onTimeout(() => {
+      console.warn('Recognizer timed out');
     });
 
     return () => {
       resultEvent.remove();
-      finalResultEvent.remove();
+      partialResultEvent.remove();
+      errorEvent.remove();
+      timeoutEvent.remove();
     };
   }, [vosk]);
 
-  const grammar = ['gauche', 'droite', '[unk]'];
-  // const grammar = ['left', 'right', '[unk]'];
-
   const record = () => {
-    if (!ready) return;
-    console.log('Starting recognition...');
-
-    setRecognizing(true);
-
-    vosk.start(grammar).catch((e: any) => {
-      console.log('Error: ' + e);
-    });
+    vosk
+      .start()
+      .then(() => {
+        console.log('Starting recognition...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
   };
 
   const stop = () => {
-    if (!ready) return;
-    console.log('Stoping recognition...');
-
-    setRecognizing(false);
-
     vosk.stop();
+    console.log('Stoping recognition...');
+    setRecognizing(false);
   };
 
   return (
@@ -74,17 +75,10 @@ export default function App(): JSX.Element {
       />
 
       <Button
-        onPress={record}
-        title="Record"
-        disabled={ready === false || recognizing === true}
-        color="#841584"
-      />
-
-      <Button
-        onPress={stop}
-        title="Stop"
-        disabled={ready === false || recognizing === false}
-        color="#841584"
+        onPress={recognizing ? stop : record}
+        title={recognizing ? 'Stop' : 'Record'}
+        disabled={ready === false}
+        color={recognizing ? 'red' : 'green'}
       />
 
       <Text>Recognized word:</Text>

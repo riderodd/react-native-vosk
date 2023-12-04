@@ -1,10 +1,10 @@
 package com.reactnativevosk
 
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import org.json.JSONObject
@@ -21,6 +21,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   private var speechService: SpeechService? = null
   private var context: ReactApplicationContext? = reactContext
   private var recognizer: Recognizer? = null
+  private var sampleRate = 16000.0f
 
   override fun getName(): String {
     return NAME
@@ -28,28 +29,32 @@ class VoskModule(reactContext: ReactApplicationContext) :
 
   override fun onResult(hypothesis: String) {
     // Get text data from string object
-    val text = getHypothesisText(hypothesis)
+    val text = parseHypothesis(hypothesis)
 
-    // Stop recording if data found
+    // Send event if data found
     if (!text.isNullOrEmpty()) {
-      cleanRecognizer()
       sendEvent("onResult", text)
     }
   }
 
   override fun onFinalResult(hypothesis: String) {
     // Get text data from string object
-    val text = getHypothesisText(hypothesis)
+    val text = parseHypothesis(hypothesis)
 
-    // Stop recording if data found
+    // Send event if data found
     if (!text.isNullOrEmpty()) {
-      cleanRecognizer()
       sendEvent("onFinalResult", text)
     }
   }
 
   override fun onPartialResult(hypothesis: String) {
-    sendEvent("onPartialResult", hypothesis)
+    // Get text data from string object
+    val text = parseHypothesis(hypothesis, "partial")
+
+    // Send event if data found
+    if (!text.isNullOrEmpty()) {
+      sendEvent("onPartialResult", text)
+    }
   }
 
   override fun onError(e: Exception) {
@@ -64,11 +69,11 @@ class VoskModule(reactContext: ReactApplicationContext) :
    * Converts hypothesis json text to the recognized text
    * @return the recognized text or null if something went wrong
    */
-  private fun getHypothesisText(hypothesis: String): String? {
-    // Hypothesis is in the form: '{text: "recognized text"}'
+  private fun parseHypothesis(hypothesis: String, key: String = "text"): String? {
+    // Hypothesis is in the form: '{[key]: "recognized text"}'
     return try {
       val res = JSONObject(hypothesis)
-      res.getString("text")
+      res.getString(key)
     } catch (tx: Throwable) {
       null
     }
@@ -118,27 +123,27 @@ class VoskModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun start(grammar: ReadableArray? = null) {
-
+  fun start(grammar: ReadableArray? = null, promise: Promise) {
     if (model == null) {
-      sendEvent("onError", "Model is not loaded yet")
+      promise.reject(IOException("Model is not loaded yet"))
     }
     else if (speechService != null) {
-      sendEvent("onError", "Recognizer is already in use")
+      promise.reject(IOException("Recognizer is already in use"))
     } else {
       try {
         recognizer =
           if (grammar != null)
-            Recognizer(model, 16000.0f, makeGrammar(grammar))
+            Recognizer(model, sampleRate, makeGrammar(grammar))
           else
-            Recognizer(model, 16000.0f)
+            Recognizer(model, sampleRate)
 
-        speechService = SpeechService(recognizer, 16000.0f)
-        speechService!!.startListening(this)
-        sendEvent("onStart")
+        speechService = SpeechService(recognizer, sampleRate)
+        if (speechService!!.startListening(this))
+          return promise.resolve("Recognizer successfully started")
 
       } catch (e: IOException) {
-        sendEvent("onError", e.toString())
+        cleanModel()
+        promise.reject(e)
       }
     }
   }
