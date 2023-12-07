@@ -15,16 +15,16 @@ Avoid using too heavy models, because the computation time required to load them
 Then, unzip the model in your app folder. If you just need to use the iOS version, put the model folder wherever you want, and import it as described below. If you need both iOS and Android to work, you can avoid to copy the model twice for both projects by importing the model from the Android assets folder in XCode. Just do as follow:
 
 ### Android
-In Android Studio, open the project manager, right-click on your project folder and New > Folder > Assets folder.
-![Android Studio assets folder creation](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_folder_creation.png)
+In Android Studio, open the project manager, right-click on your project folder and go to `New` > `Folder` > `Assets folder`.
 
-Then put the model folder inside the assets folder created. In your file tree it should be located in android\app\src\main\assets. So, if you downloaded the french model named model-fr-fr, you should access the model by going to android\app\src\main\assets\model-fr-fr. In Android studio, your project structure should be like that:
+Then put the model folder inside the assets folder created. In your file tree it should be located in `android\app\src\main\assets`. So, if you downloaded the french model named `model-fr-fr`, you should access the model by going to `android\app\src\main\assets\model-fr-fr`. In Android studio, your project structure should be like that:
+
 ![Android Studio final project structure](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_project_structure.png)
 
 You can import as many models as you want.
 
 ### iOS
-In XCode, right-click on your project folder, and click on "Add files to [your project name]".
+In XCode, right-click on your project folder, and click on `"Add files to [your project name]"`.
 
 ![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png)
 
@@ -43,25 +43,21 @@ import Vosk from 'react-native-vosk';
 
 // ...
 
-const voiceRecognition = new Vosk();
+const vosk = new Vosk();
 
-voiceRecognition.loadModel('model-en-en').then(() => {
-    // we can use promise...
+vosk.loadModel('model-en-en').then(() => {
     const options = ['left', 'right', '[unk]'];
-    voiceRecognition
+
+    vosk
       .start(options)
-      .then((res: string) => {
-        console.log('Result is: ' + res);
+      .then(() => {
+        console.log('Recognizer successfuly started');
       })
-      .catch((e: any) => {
+      .catch(e => {
         console.log('Error: ' + e);
       })
-      .finally(() => {
-        console.log("Recognition is complete")
-      });
 
-    // ... or events
-    const resultEvent = voiceRecognition.onResult((res) => {
+    const resultEvent = vosk.onResult((res) => {
       console.log('A onResult event has been caught: ' + res.data);
     });
 
@@ -74,36 +70,71 @@ voiceRecognition.loadModel('model-en-en').then(() => {
 
 Note that `start()` method will ask for audio record permission.
 
-[Complete example...](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
+[See complete example...](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
 
 ### Methods
 
 | Method | Argument | Return | Description |
 |---|---|---|---|
-| `loadModel` | `path: string` | `Promise` | Loads the voice model used for recognition, it is required before using start method |
-| `start` | `grammar: string[]` or `none` | `Promise` | Starts the voice recognition and returns the recognized text as a promised string, you can recognize specific words using the `grammar` argument (ex: ["left", "right"]) according to kaldi's documentation |
-| `stop` | `none` | `none` | Stops the recognition |
+| `loadModel` | `path: string` | `Promise<void>` | Loads the voice model used for recognition, it is required before using start method |
+| `start` | `grammar: string[]` or `none` | `Promise<void>` | Starts the recognizer, an `onResult()` event will be fired, you can recognize specific words/phrases using the `grammar` argument (ex: ["left", "right"]) according to kaldi's documentation |
+| `setGrammar` | `grammar: string[]` or `none` | `Promise<void>` | Reconfigures recognizer to use grammar. |
+| `stop` | `none` | `none` | Stops the recognizer. Listener should receive final result if there is any. |
+| `unload` | `none` | `none` | Unloads the model, also stops the recognizer. |
 
 ### Events 
 
 | Method | Promise return | Description |
 |---|---|---|
-| `onResult` | The recognized word as a `string` | Triggers on voice recognition result |
-| `onFinalResult` | The recognized word as a `string` | Triggers if stopped using `stop()` method |
-| `onError` | The error that occured as a `string` or `exception` | Triggers if an error occured |
-| `onTimeout` | "timeout" `string` | Triggers on timeout |
+| `onPartialResult` | The recognized word as a `string` | Called when partial recognition result is available.|
+| `onResult` | The recognized word as a `string` | Called after silence occured. |
+| `onFinalResult` | The recognized word as a `string` | Called after stream end, like a `stop()` call |
+| `onError` | The error that occured as a `string` or `exception` | Called when an error occurs |
+| `onTimeout` | `void` | Called after timeout expired |
 
-#### Example
+### Examples
+
+#### Default
 
 ```js
-const resultEvent = voiceRecognition.onResult((res) => {
+const vosk = useRef(new Vosk()).current;
+
+const start = () => vosk.start();
+
+useEffect(() => {
+  const resultEvent = vosk.onResult((res) => {
     console.log('A onResult event has been caught: ' + res.data);
-});
+  });
     
-resultEvent.remove();
+  return () => resultEvent.remove();
+}, [vosk])
 ```
 
-Don't forget to remove the event listener once you don't need it anymore.
+#### Using grammar
+
+```js
+const vosk = useRef(new Vosk()).current;
+
+const start = () => vosk.start(['left', 'right', '[unk]']);
+
+useEffect(() => {
+  const resultEvent = vosk.onResult((res) => {
+    if (res.data === "left") {
+      console.log('Go left');
+    }
+    else if (res.data === "right") {
+      console.log('Go right');
+    }
+    else {
+      console.log("Instruction couldn't be recognized");
+    }
+  });
+    
+  return () => resultEvent.remove();
+}, [vosk])
+```
+
+#### [Complete example](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
 
 ## Contributing
 

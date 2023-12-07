@@ -26,7 +26,7 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     const resultEvent = vosk.onResult((res) => {
-      console.log('A onResult event has been caught: ' + res.data);
+      console.log('An onResult event has been caught: ' + res.data);
       setResult(res.data);
     });
 

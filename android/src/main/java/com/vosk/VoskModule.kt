@@ -138,11 +138,37 @@ class VoskModule(reactContext: ReactApplicationContext) :
             Recognizer(model, sampleRate)
 
         speechService = SpeechService(recognizer, sampleRate)
+
+        return if (speechService!!.startListening(this))
+          promise.resolve("Recognizer successfully started")
+        else
+          promise.reject(IOException("Recognizer couldn't be started"))
+
+      } catch (e: IOException) {
+        cleanModel()
+        promise.reject(e)
+      }
+    }
+  }
+
+  @ReactMethod
+  fun setGrammar(grammar: ReadableArray? = null, promise: Promise) {
+    if (recognizer == null || speechService == null) {
+      promise.reject(IOException("Recognizer is not started yet"))
+    } else {
+      try {
+        speechService!!.stop()
+
+        if (grammar != null)
+          recognizer!!.setGrammar(makeGrammar(grammar))
+        else
+          recognizer!!.setGrammar("[]")
+
+        speechService = SpeechService(recognizer, sampleRate)
         if (speechService!!.startListening(this))
           return promise.resolve("Recognizer successfully started")
 
       } catch (e: IOException) {
-        cleanModel()
         promise.reject(e)
       }
     }

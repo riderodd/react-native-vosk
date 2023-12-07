@@ -17,6 +17,7 @@ interface VoskInterface {
   unload: () => void;
 
   start: (grammar: string[] | null) => Promise<void>;
+  setGrammar: (grammar: string[] | null) => Promise<void>;
   stop: () => void;
 
   addListener: (eventType: string) => void;
@@ -71,6 +72,10 @@ export default class Vosk {
   start = async (grammar: string[] | null = null) => {
     // Check for permission
     if (await this.requestRecordPermission()) return VoskModule.start(grammar);
+  };
+
+  setGrammar = async (grammar: string[] | null = null) => {
+    return VoskModule.setGrammar(grammar);
   };
 
   /**
