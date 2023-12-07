@@ -26,20 +26,21 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     const resultEvent = vosk.onResult((res) => {
-      console.log('An onResult event has been caught: ' + res.data);
-      setResult(res.data);
+      console.log('An onResult event has been caught: ' + res);
+      setResult(res);
     });
 
     const partialResultEvent = vosk.onPartialResult((res) => {
-      setResult(res.data);
+      setResult(res);
     });
 
-    const errorEvent = vosk.onError((res) => {
-      console.error(res.data);
+    const errorEvent = vosk.onError((e) => {
+      console.error(e);
     });
 
     const timeoutEvent = vosk.onTimeout(() => {
-      console.warn('Recognizer timed out');
+      console.log('Recognizer timed out');
+      setRecognizing(false);
     });
 
     return () => {
@@ -52,7 +53,7 @@ export default function App(): JSX.Element {
 
   const record = () => {
     vosk
-      .start()
+      .start({ grammar: ['gauche', 'droite'] })
       .then(() => {
         console.log('Starting recognition...');
         setRecognizing(true);

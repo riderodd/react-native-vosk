@@ -16,7 +16,7 @@ interface VoskInterface {
   loadModel: (path: string) => Promise<void>;
   unload: () => void;
 
-  start: (grammar: string[] | null) => Promise<void>;
+  start: (options?: VoskOptions) => Promise<void>;
   setGrammar: (grammar: string[] | null) => Promise<void>;
   stop: () => void;
 
@@ -35,11 +35,16 @@ const VoskModule: VoskInterface = NativeModules.Vosk
       }
     );
 
-type VoskEvent = {
+type VoskOptions = {
   /**
-   * Event datas
+   * Set of phrases the recognizer will seek on which is the closest one from
+   * the record, add `"[unk]"` to the set to recognize phrases striclty.
    */
-  data: string;
+  grammar?: string[];
+  /**
+   * Timeout in milliseconds to listen.
+   */
+  timeout?: number;
 };
 
 const eventEmitter = new NativeEventEmitter();
@@ -53,27 +58,39 @@ export default class Vosk {
    * @param path - Path of the model.
    *
    * @example
-   *   vosk.loadModel('model-fr-fr');
+   *   vosk.loadModel('model-fr-fr').then(() => {
+   *      setLoaded(true);
+   *   });
    */
   loadModel = (path: string) => VoskModule.loadModel(path);
 
   /**
-   * Starts the recognizer using desired grammar if specified,
-   *   an `onResult()` event will be fired.
+   * Asks for recording permissions then starts the recognizer.
    *
-   * @param grammar - Optional set of phrases the recognizer will seek on
-   *   which is the closest one from the record,
-   *   add `"[unk]"` to the set to recognize phrases striclty.
+   * @param options - Optional settings for the recognizer.
    *
    * @example
-   *   vosk.start();
-   *   vosk.start(['cool', 'application', '[unk]']);
+   *   vosk.start().then(() => console.log("Recognizer started"));
+   *
+   *   vosk.start({
+   *      grammar: ['cool', 'application', '[unk]'],
+   *      timeout: 5000,
+   *   }).catch(e => console.log(e));
    */
-  start = async (grammar: string[] | null = null) => {
-    // Check for permission
-    if (await this.requestRecordPermission()) return VoskModule.start(grammar);
+  start = async (options?: VoskOptions) => {
+    if (await this.requestRecordPermission()) return VoskModule.start(options);
   };
 
+  /**
+   * Reconfigures recognizer to use grammar.
+   *
+   * @param grammar - Set of phrases the recognizer will seek on which is the closest one from
+   * the record, add `"[unk]"` to the set to recognize phrases striclty.
+   *
+   * @example
+   *   vosk.setGrammar(); // Disables grammar recognition
+   *   vosk.setGrammar(['cool', 'application', '[unk]']);
+   */
   setGrammar = async (grammar: string[] | null = null) => {
     return VoskModule.setGrammar(grammar);
   };
@@ -90,22 +107,18 @@ export default class Vosk {
 
   // Event listeners builders
 
-  onResult = (cb: (e: VoskEvent) => void): EventSubscription => {
+  onResult = (cb: (e: string) => void): EventSubscription => {
     return eventEmitter.addListener('onResult', cb);
   };
-  onPartialResult = (cb: (e: VoskEvent) => void): EventSubscription => {
+  onPartialResult = (cb: (e: string) => void): EventSubscription => {
     return eventEmitter.addListener('onPartialResult', cb);
   };
-  onFinalResult = (cb: (e: VoskEvent) => void): EventSubscription => {
+  onFinalResult = (cb: (e: string) => void): EventSubscription => {
     return eventEmitter.addListener('onFinalResult', cb);
   };
-  onError = (cb: (e: VoskEvent) => void): EventSubscription => {
+  onError = (cb: (e: any) => void): EventSubscription => {
     return eventEmitter.addListener('onError', cb);
   };
-
-  /**
-   * NOT IMPLEMENTED ON ANDROID YET.
-   */
   onTimeout = (cb: () => void): EventSubscription => {
     return eventEmitter.addListener('onTimeout', cb);
   };

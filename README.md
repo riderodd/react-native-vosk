@@ -26,8 +26,6 @@ You can import as many models as you want.
 ### iOS
 In XCode, right-click on your project folder, and click on `"Add files to [your project name]"`.
 
-![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png)
-
 Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it.
 
 ![XCode chose model folder](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png)
@@ -45,27 +43,31 @@ import Vosk from 'react-native-vosk';
 
 const vosk = new Vosk();
 
-vosk.loadModel('model-en-en').then(() => {
-    const options = ['left', 'right', '[unk]'];
+vosk
+  .loadModel('model-en-en')
+  .then(() => {
+    const options = {
+      grammar: ['left', 'right', '[unk]'],
+    };
 
     vosk
       .start(options)
       .then(() => {
         console.log('Recognizer successfuly started');
       })
-      .catch(e => {
+      .catch((e) => {
         console.log('Error: ' + e);
-      })
+      });
 
     const resultEvent = vosk.onResult((res) => {
-      console.log('A onResult event has been caught: ' + res.data);
+      console.log('A onResult event has been caught: ' + res);
     });
 
     // Don't forget to call resultEvent.remove(); to delete the listener
-}).catch(e => {
+  })
+  .catch((e) => {
     console.error(e);
-})
-
+  });
 ```
 
 Note that `start()` method will ask for audio record permission.
@@ -76,11 +78,18 @@ Note that `start()` method will ask for audio record permission.
 
 | Method | Argument | Return | Description |
 |---|---|---|---|
-| `loadModel` | `path: string` | `Promise<void>` | Loads the voice model used for recognition, it is required before using start method |
-| `start` | `grammar: string[]` or `none` | `Promise<void>` | Starts the recognizer, an `onResult()` event will be fired, you can recognize specific words/phrases using the `grammar` argument (ex: ["left", "right"]) according to kaldi's documentation |
-| `setGrammar` | `grammar: string[]` or `none` | `Promise<void>` | Reconfigures recognizer to use grammar. |
+| `loadModel` | `path: string` | `Promise<void>` | Loads the voice model used for recognition, it is required before using start method. |
+| `start` | `options: VoskOptions` or `none` | `Promise<void>` | Starts the recognizer, an `onResult()` event will be fired. |
+| `setGrammar` | `grammar: string[]` or `none` | `Promise<void>` | Reconfigures the recognizer to use grammar. |
 | `stop` | `none` | `none` | Stops the recognizer. Listener should receive final result if there is any. |
 | `unload` | `none` | `none` | Unloads the model, also stops the recognizer. |
+
+### Types
+
+| VoskOptions | Type | Required | Description |
+|---|---|---|---|
+| `grammar` | `string[]` | No | Set of phrases the recognizer will seek on which is the closest one from the record, add `"[unk]"` to the set to recognize phrases striclty. |
+| `timeout` | `int` | No | Timeout in milliseconds to listen. |
 
 ### Events 
 
@@ -97,41 +106,62 @@ Note that `start()` method will ask for audio record permission.
 #### Default
 
 ```js
-const vosk = useRef(new Vosk()).current;
-
 const start = () => vosk.start();
 
 useEffect(() => {
   const resultEvent = vosk.onResult((res) => {
-    console.log('A onResult event has been caught: ' + res.data);
+    console.log('A onResult event has been caught: ' + res);
   });
-    
+
   return () => resultEvent.remove();
-}, [vosk])
+}, [vosk]);
 ```
 
 #### Using grammar
 
 ```js
-const vosk = useRef(new Vosk()).current;
-
-const start = () => vosk.start(['left', 'right', '[unk]']);
+const start = () =>
+  vosk.start({
+    grammar: ['left', 'right', '[unk]'],
+  });
 
 useEffect(() => {
   const resultEvent = vosk.onResult((res) => {
-    if (res.data === "left") {
+    if (res === 'left') {
       console.log('Go left');
-    }
-    else if (res.data === "right") {
+    } else if (res === 'right') {
       console.log('Go right');
-    }
-    else {
+    } else {
       console.log("Instruction couldn't be recognized");
     }
   });
-    
+
   return () => resultEvent.remove();
-}, [vosk])
+}, [vosk]);
+```
+
+#### Using timeout
+
+```js
+const start = () =>
+  vosk.start({
+    timeout: 5000,
+  });
+
+useEffect(() => {
+  const resultEvent = vosk.onResult((res) => {
+    console.log('An onResult event has been caught: ' + res);
+  });
+
+  const timeoutEvent = vosk.onTimeout(() => {
+    console.log('Recognizer timed out');
+  });
+
+  return () => {
+    resultEvent.remove();
+    timeoutEvent.remove();
+  };
+}, [vosk]);
 ```
 
 #### [Complete example](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
