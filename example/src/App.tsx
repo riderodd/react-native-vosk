@@ -18,6 +18,42 @@ export default function App(): JSX.Element {
       .catch((e) => console.error(e));
   }, [vosk]);
 
+  const record = () => {
+    vosk
+      .start()
+      .then(() => {
+        console.log('Starting recognition...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordGrammar = () => {
+    vosk
+      .start({ grammar: ['cool', 'application', '[unk]'] })
+      .then(() => {
+        console.log('Starting recognition with grammar...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordTimeout = () => {
+    vosk
+      .start({ timeout: 10000 })
+      .then(() => {
+        console.log('Starting recognition with timeout...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const stop = () => {
+    vosk.stop();
+    console.log('Stoping recognition...');
+    setRecognizing(false);
+  };
+
   const unload = useCallback(() => {
     vosk.unload();
     setReady(false);
@@ -34,6 +70,10 @@ export default function App(): JSX.Element {
       setResult(res);
     });
 
+    const finalResultEvent = vosk.onFinalResult((res) => {
+      setResult(res);
+    });
+
     const errorEvent = vosk.onError((e) => {
       console.error(e);
     });
@@ -46,26 +86,11 @@ export default function App(): JSX.Element {
     return () => {
       resultEvent.remove();
       partialResultEvent.remove();
+      finalResultEvent.remove();
       errorEvent.remove();
       timeoutEvent.remove();
     };
   }, [vosk]);
-
-  const record = () => {
-    vosk
-      .start({ grammar: ['gauche', 'droite'] })
-      .then(() => {
-        console.log('Starting recognition...');
-        setRecognizing(true);
-      })
-      .catch((e) => console.error(e));
-  };
-
-  const stop = () => {
-    vosk.stop();
-    console.log('Stoping recognition...');
-    setRecognizing(false);
-  };
 
   return (
     <View style={styles.container}>
@@ -75,12 +100,32 @@ export default function App(): JSX.Element {
         color="blue"
       />
 
-      <Button
-        onPress={recognizing ? stop : record}
-        title={recognizing ? 'Stop' : 'Record'}
-        disabled={ready === false}
-        color={recognizing ? 'red' : 'green'}
-      />
+      {!recognizing && (
+        <View style={styles.recordingButtons}>
+          <Button
+            title="Record"
+            onPress={record}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with grammar"
+            onPress={recordGrammar}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with timeout"
+            onPress={recordTimeout}
+            disabled={!ready}
+            color="green"
+          />
+        </View>
+      )}
+
+      {recognizing && <Button onPress={stop} title="Stop" color="red" />}
 
       <Text>Recognized word:</Text>
       <Text>{result}</Text>
@@ -90,10 +135,15 @@ export default function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: 25,
     flex: 1,
+    display: 'flex',
     textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  recordingButtons: {
+    gap: 15,
+    display: 'flex',
   },
 });
