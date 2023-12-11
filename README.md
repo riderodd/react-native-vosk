@@ -5,17 +5,22 @@ Speech recognition module for react native using [Vosk](https://github.com/alpha
 ## Installation
 
 ### Library
+
 ```sh
 npm install -S react-native-vosk
 ```
 
 ### Models
+
 Vosk uses prebuilt models to perform speech recognition offline. You have to download the model(s) that you need on [Vosk official website](https://alphacephei.com/vosk/models)
 Avoid using too heavy models, because the computation time required to load them into your app could lead to bad user experience.
 Then, unzip the model in your app folder. If you just need to use the iOS version, put the model folder wherever you want, and import it as described below. If you need both iOS and Android to work, you can avoid to copy the model twice for both projects by importing the model from the Android assets folder in XCode. Just do as follow:
 
 ### Android
+
 In Android Studio, open the project manager, right-click on your project folder and go to `New` > `Folder` > `Assets folder`.
+
+![Android Studio assets folder creation](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_folder_creation.png)
 
 Then put the model folder inside the assets folder created. In your file tree it should be located in `android\app\src\main\assets`. So, if you downloaded the french model named `model-fr-fr`, you should access the model by going to `android\app\src\main\assets\model-fr-fr`. In Android studio, your project structure should be like that:
 
@@ -24,7 +29,10 @@ Then put the model folder inside the assets folder created. In your file tree it
 You can import as many models as you want.
 
 ### iOS
+
 In XCode, right-click on your project folder, and click on `"Add files to [your project name]"`.
+
+![XCode add files to project](https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png)
 
 Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it.
 
@@ -91,7 +99,7 @@ Note that `start()` method will ask for audio record permission.
 | `grammar` | `string[]` | No | Set of phrases the recognizer will seek on which is the closest one from the record, add `"[unk]"` to the set to recognize phrases striclty. |
 | `timeout` | `int` | No | Timeout in milliseconds to listen. |
 
-### Events 
+### Events
 
 | Method | Promise return | Description |
 |---|---|---|
@@ -106,26 +114,21 @@ Note that `start()` method will ask for audio record permission.
 #### Default
 
 ```js
-const start = () => vosk.start();
-
-useEffect(() => {
+vosk.start().then(() => {
   const resultEvent = vosk.onResult((res) => {
     console.log('A onResult event has been caught: ' + res);
   });
+});
 
-  return () => resultEvent.remove();
-}, [vosk]);
+// when done, remember to call resultEvent.remove();
 ```
 
 #### Using grammar
 
 ```js
-const start = () =>
-  vosk.start({
-    grammar: ['left', 'right', '[unk]'],
-  });
-
-useEffect(() => {
+vosk.start({
+  grammar: ['left', 'right', '[unk]'],
+}).then(() => {
   const resultEvent = vosk.onResult((res) => {
     if (res === 'left') {
       console.log('Go left');
@@ -135,20 +138,17 @@ useEffect(() => {
       console.log("Instruction couldn't be recognized");
     }
   });
+});
 
-  return () => resultEvent.remove();
-}, [vosk]);
+// when done, remember to call resultEvent.remove();
 ```
 
 #### Using timeout
 
 ```js
-const start = () =>
-  vosk.start({
-    timeout: 5000,
-  });
-
-useEffect(() => {
+vosk.start({
+  timeout: 5000,
+}).then(() => {
   const resultEvent = vosk.onResult((res) => {
     console.log('An onResult event has been caught: ' + res);
   });
@@ -156,12 +156,9 @@ useEffect(() => {
   const timeoutEvent = vosk.onTimeout(() => {
     console.log('Recognizer timed out');
   });
+})
 
-  return () => {
-    resultEvent.remove();
-    timeoutEvent.remove();
-  };
-}, [vosk]);
+// when done, remember to clean all listeners;
 ```
 
 #### [Complete example](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
