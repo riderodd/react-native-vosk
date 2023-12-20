@@ -40,7 +40,7 @@ export default function App(): JSX.Element {
 
   const recordTimeout = () => {
     vosk
-      .start({ timeout: 10000 })
+      .start({ timeout: 5000 })
       .then(() => {
         console.log('Starting recognition with timeout...');
         setRecognizing(true);
