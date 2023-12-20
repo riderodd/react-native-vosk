@@ -13,7 +13,7 @@ public final class VoskModel {
     var model : OpaquePointer!
     var spkModel : OpaquePointer!
     
-    init(name: String) {
+    init(name: String) throws {
         
         // Set to -1 to disable logs
         vosk_set_log_level(0);

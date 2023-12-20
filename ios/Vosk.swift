@@ -9,6 +9,22 @@ struct VoskResult: Codable {
     var text: String?
 }
 
+// Structure of options for start method
+struct VoskStartOptions {
+    // Grammar to use
+    var grammar: [String]?
+    // Timeout in milliseconds
+    var timeout: Int?
+}
+extension VoskStartOptions: Codable {
+    init(dictionary: [String: Any]) throws {
+        self = try JSONDecoder().decode(VoskStartOptions.self, from: JSONSerialization.data(withJSONObject: dictionary))
+    }
+    private enum CodingKeys: String, CodingKey {
+        case grammar, timeout
+    }
+}
+
 @objc(Vosk)
 class Vosk: RCTEventEmitter {
     // Class properties
@@ -28,6 +44,8 @@ class Vosk: RCTEventEmitter {
     var lastRecognizedResult: VoskResult?
     /// The timeout timer ref
     var timeoutTimer: Timer?
+    /// The current grammar set
+    var grammar: [String]?
     
     /// React member: has any JS event listener
     var hasListener: Bool = false
@@ -69,14 +87,46 @@ class Vosk: RCTEventEmitter {
         if (currentModel != nil) {
             currentModel = nil; // deinit model
         }
-        currentModel = VoskModel(name: name)
-        resolve(name)
+        
+        // Load the model in a try catch block
+        do {
+            try currentModel = VoskModel(name: name)
+            resolve(true);
+        } catch {
+            reject(nil, nil, nil);
+        }
+    }
+
+
+    /// Set grammar to use
+    @objc(setGrammar:withResolver:withRejecter:)
+    func setGrammar(words: [String]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        // if words is empty, set grammar to nil
+        if (words == nil || words?.isEmpty == true) {
+            grammar = nil
+        } else {
+            grammar = words
+        }
+        resolve(true);
     }
     
     /// Start speech recognition
     @objc(start:withResolver:withRejecter:)
-    func start(grammar: [String]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    func start(rawOptions: [String : Any]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         let audioSession = AVAudioSession.sharedInstance()
+
+        var options : VoskStartOptions? = nil;
+        do {
+            options = (rawOptions != nil) ? try VoskStartOptions(dictionary: rawOptions!) : nil
+        } catch {
+            print(error)
+        }
+        
+        // if grammar is set in options, override the current grammar
+        var grammar: [String]? = nil
+        if (options?.grammar != nil && options?.grammar!.isEmpty == false) {
+            grammar = options?.grammar
+        }
         
         do {
             // Ask the user for permission to use the mic if required then start the engine.
@@ -84,10 +134,10 @@ class Vosk: RCTEventEmitter {
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             
             if (grammar != nil && grammar!.isEmpty == false) {
-                let jsonGrammar = try! JSONEncoder().encode(grammar)
+                let jsonGrammar = try! JSONEncoder().encode(grammar);
                 recognizer = vosk_recognizer_new_grm(currentModel!.model, Float(formatInput.sampleRate), String(data: jsonGrammar, encoding: .utf8))
             } else {
-                recognizer = vosk_recognizer_new_spk(currentModel!.model, Float(formatInput.sampleRate), currentModel!.spkModel)
+                recognizer = vosk_recognizer_new(currentModel!.model, Float(formatInput.sampleRate))
             }
             
             let formatPcm = AVAudioFormat.init(commonFormat: AVAudioCommonFormat.pcmFormatInt16, sampleRate: formatInput.sampleRate, channels: 1, interleaved: true)
@@ -99,12 +149,15 @@ class Vosk: RCTEventEmitter {
                         let res = self.recognizeData(buffer: buffer)
                         DispatchQueue.main.async {
                             let parsedResult = try! JSONDecoder().decode(VoskResult.self, from: res.result!.data(using: .utf8)!)
-                            self.lastRecognizedResult = parsedResult
                             if (res.completed && self.hasListener && res.result != nil) {
-                                self.sendEvent(withName: "onResult", body: ["data": parsedResult.text!])
+                                self.sendEvent(withName: "onResult", body: parsedResult.text!)
                             } else if (!res.completed && self.hasListener && res.result != nil) {
-                                self.sendEvent(withName: "onPartialResult", body: ["data": parsedResult.partial!])
+                                // check if partial result is different from last one
+                                if (self.lastRecognizedResult == nil || self.lastRecognizedResult!.partial != parsedResult.partial && !parsedResult.partial!.isEmpty) {
+                                    self.sendEvent(withName: "onPartialResult", body: parsedResult.partial!.data)
+                                }
                             }
+                            self.lastRecognizedResult = parsedResult
                         }
                     }
             }
@@ -117,16 +170,23 @@ class Vosk: RCTEventEmitter {
                 try? self.audioEngine.start()
             }
             
-            // and manage timeout
-            timeoutTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) {_ in
-                self.sendEvent(withName: "onTimeout", body: ["data": ""])
-                self.stopInternal(withoutEvents: true)
+            // if grammar is set in options, override the current grammar
+            var timeout: Int? = nil
+            if (options?.timeout != nil) {
+                timeout = options?.timeout
+            }
+            // and manage timeout if set in options
+            if (timeout != nil) {
+                timeoutTimer = Timer.scheduledTimer(withTimeInterval: Double(timeout!) / 1000, repeats: false) {_ in
+                    self.sendEvent(withName: "onTimeout", body: "")
+                    self.stopInternal(withoutEvents: true)
+                }
             }
 
             resolve("Recognizer successfully started");
         } catch {
             if (hasListener) {
-                sendEvent(withName: "onError", body: ["data": "Unable to start AVAudioEngine " + error.localizedDescription])
+                sendEvent(withName: "onError", body: "Unable to start AVAudioEngine " + error.localizedDescription)
             } else {
                 debugPrint("Unable to start AVAudioEngine " + error.localizedDescription)
             }
@@ -155,7 +215,7 @@ class Vosk: RCTEventEmitter {
         if (audioEngine.isRunning) {
             audioEngine.stop()
             if (hasListener && !withoutEvents) {
-                sendEvent(withName: "onFinalResult", body: ["data": lastRecognizedResult!.partial])
+                sendEvent(withName: "onFinalResult", body: lastRecognizedResult!.partial)
             }
             lastRecognizedResult = nil
         }
