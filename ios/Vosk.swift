@@ -65,7 +65,7 @@ class Vosk: RCTEventEmitter {
 
     /// Load a Vosk model
     @objc(loadModel:withResolver:withRejecter:)
-    func loadModel(name: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    func loadModel(name: String, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         if (currentModel != nil) {
             currentModel = nil; // deinit model
         }
@@ -74,8 +74,8 @@ class Vosk: RCTEventEmitter {
     }
     
     /// Start speech recognition
-    @objc(start:)
-    func start(grammar: [String]?) -> Void {
+    @objc(start:withResolver:withRejecter:)
+    func start(grammar: [String]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         let audioSession = AVAudioSession.sharedInstance()
         
         do {
@@ -102,7 +102,6 @@ class Vosk: RCTEventEmitter {
                             self.lastRecognizedResult = parsedResult
                             if (res.completed && self.hasListener && res.result != nil) {
                                 self.sendEvent(withName: "onResult", body: ["data": parsedResult.text!])
-                                self.stopInternal(withoutEvents: true);
                             } else if (!res.completed && self.hasListener && res.result != nil) {
                                 self.sendEvent(withName: "onPartialResult", body: ["data": parsedResult.partial!])
                             }
@@ -119,10 +118,12 @@ class Vosk: RCTEventEmitter {
             }
             
             // and manage timeout
-            timeoutTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) {_ in
+            timeoutTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) {_ in
                 self.sendEvent(withName: "onTimeout", body: ["data": ""])
                 self.stopInternal(withoutEvents: true)
             }
+
+            resolve("Recognizer successfully started");
         } catch {
             if (hasListener) {
                 sendEvent(withName: "onError", body: ["data": "Unable to start AVAudioEngine " + error.localizedDescription])
@@ -130,6 +131,7 @@ class Vosk: RCTEventEmitter {
                 debugPrint("Unable to start AVAudioEngine " + error.localizedDescription)
             }
             vosk_recognizer_free(recognizer);
+            reject("start", error.localizedDescription, error);
         }
     }
     

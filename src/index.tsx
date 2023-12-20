@@ -41,7 +41,7 @@ type VoskEvent = {
   data: string;
 };
 
-const eventEmitter = new NativeEventEmitter();
+const eventEmitter = new NativeEventEmitter(VoskModule);
 
 export default class Vosk {
   // Public functions

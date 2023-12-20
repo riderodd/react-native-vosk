@@ -7,7 +7,9 @@ RCT_EXTERN_METHOD(loadModel:(NSString *)name
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(start:(NSArray)grammar)
+RCT_EXTERN_METHOD(start:(NSArray)grammar
+                 withResolver:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(stop)
 
