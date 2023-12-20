@@ -1,11 +1,11 @@
 package com.reactnativevosk
 
-import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import org.json.JSONObject
 import org.vosk.Model
@@ -62,6 +62,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onTimeout() {
+    cleanRecognizer()
     sendEvent("onTimeout")
   }
 
@@ -83,15 +84,10 @@ class VoskModule(reactContext: ReactApplicationContext) :
    * Sends event to react native with associated data
    */
   private fun sendEvent(eventName: String, data: String? = null) {
-    // Write event data if there is some
-    val event = Arguments.createMap().apply {
-      if (data != null) putString("data", data)
-    }
-
     // Send event
     context?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit(
       eventName,
-      event
+      data
     )
   }
 
@@ -123,7 +119,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun start(grammar: ReadableArray? = null, promise: Promise) {
+  fun start(options: ReadableMap? = null, promise: Promise) {
     if (model == null) {
       promise.reject(IOException("Model is not loaded yet"))
     }
@@ -132,17 +128,46 @@ class VoskModule(reactContext: ReactApplicationContext) :
     } else {
       try {
         recognizer =
-          if (grammar != null)
-            Recognizer(model, sampleRate, makeGrammar(grammar))
+          if (options != null && options.hasKey("grammar") && !options.isNull("grammar"))
+            Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
           else
             Recognizer(model, sampleRate)
+
+        speechService = SpeechService(recognizer, sampleRate)
+
+        return if (options != null && options.hasKey("timeout") && !options.isNull("timeout") && speechService!!.startListening(this, options.getInt("timeout")))
+          promise.resolve("Recognizer successfully started with timeout")
+        else if (speechService!!.startListening(this))
+          promise.resolve("Recognizer successfully started")
+        else
+          promise.reject(IOException("Recognizer couldn't be started"))
+
+      } catch (e: IOException) {
+        cleanModel()
+        promise.reject(e)
+      }
+    }
+  }
+
+  @ReactMethod
+  fun setGrammar(grammar: ReadableArray? = null, promise: Promise) {
+    if (recognizer == null || speechService == null) {
+      promise.reject(IOException("Recognizer is not started yet"))
+    } else {
+      try {
+        speechService!!.stop()
+        speechService!!.shutdown()
+
+        if (grammar != null)
+          recognizer!!.setGrammar(makeGrammar(grammar))
+        else
+          recognizer!!.setGrammar("[]")
 
         speechService = SpeechService(recognizer, sampleRate)
         if (speechService!!.startListening(this))
           return promise.resolve("Recognizer successfully started")
 
       } catch (e: IOException) {
-        cleanModel()
         promise.reject(e)
       }
     }

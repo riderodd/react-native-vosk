@@ -18,43 +18,31 @@ export default function App(): JSX.Element {
       .catch((e) => console.error(e));
   }, [vosk]);
 
-  const unload = useCallback(() => {
-    vosk.unload();
-    setReady(false);
-    setRecognizing(false);
-  }, [vosk]);
-
-  useEffect(() => {
-    const resultEvent = vosk.onResult((res) => {
-      console.log('A onResult event has been caught: ' + res.data);
-      setResult(res.data);
-    });
-
-    const partialResultEvent = vosk.onPartialResult((res) => {
-      setResult(res.data);
-    });
-
-    const errorEvent = vosk.onError((res) => {
-      console.error(res.data);
-    });
-
-    const timeoutEvent = vosk.onTimeout(() => {
-      console.warn('Recognizer timed out');
-    });
-
-    return () => {
-      resultEvent.remove();
-      partialResultEvent.remove();
-      errorEvent.remove();
-      timeoutEvent.remove();
-    };
-  }, [vosk]);
-
   const record = () => {
     vosk
       .start()
       .then(() => {
         console.log('Starting recognition...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordGrammar = () => {
+    vosk
+      .start({ grammar: ['cool', 'application', '[unk]'] })
+      .then(() => {
+        console.log('Starting recognition with grammar...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordTimeout = () => {
+    vosk
+      .start({ timeout: 10000 })
+      .then(() => {
+        console.log('Starting recognition with timeout...');
         setRecognizing(true);
       })
       .catch((e) => console.error(e));
@@ -66,6 +54,44 @@ export default function App(): JSX.Element {
     setRecognizing(false);
   };
 
+  const unload = useCallback(() => {
+    vosk.unload();
+    setReady(false);
+    setRecognizing(false);
+  }, [vosk]);
+
+  useEffect(() => {
+    const resultEvent = vosk.onResult((res) => {
+      console.log('An onResult event has been caught: ' + res);
+      setResult(res);
+    });
+
+    const partialResultEvent = vosk.onPartialResult((res) => {
+      setResult(res);
+    });
+
+    const finalResultEvent = vosk.onFinalResult((res) => {
+      setResult(res);
+    });
+
+    const errorEvent = vosk.onError((e) => {
+      console.error(e);
+    });
+
+    const timeoutEvent = vosk.onTimeout(() => {
+      console.log('Recognizer timed out');
+      setRecognizing(false);
+    });
+
+    return () => {
+      resultEvent.remove();
+      partialResultEvent.remove();
+      finalResultEvent.remove();
+      errorEvent.remove();
+      timeoutEvent.remove();
+    };
+  }, [vosk]);
+
   return (
     <View style={styles.container}>
       <Button
@@ -74,12 +100,32 @@ export default function App(): JSX.Element {
         color="blue"
       />
 
-      <Button
-        onPress={recognizing ? stop : record}
-        title={recognizing ? 'Stop' : 'Record'}
-        disabled={ready === false}
-        color={recognizing ? 'red' : 'green'}
-      />
+      {!recognizing && (
+        <View style={styles.recordingButtons}>
+          <Button
+            title="Record"
+            onPress={record}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with grammar"
+            onPress={recordGrammar}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with timeout"
+            onPress={recordTimeout}
+            disabled={!ready}
+            color="green"
+          />
+        </View>
+      )}
+
+      {recognizing && <Button onPress={stop} title="Stop" color="red" />}
 
       <Text>Recognized word:</Text>
       <Text>{result}</Text>
@@ -89,10 +135,15 @@ export default function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: 25,
     flex: 1,
+    display: 'flex',
     textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  recordingButtons: {
+    gap: 15,
+    display: 'flex',
   },
 });
