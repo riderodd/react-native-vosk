@@ -101,13 +101,26 @@ class Vosk: RCTEventEmitter {
     /// Set grammar to use
     @objc(setGrammar:withResolver:withRejecter:)
     func setGrammar(words: [String]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        var isRunning = audioEngine.isRunning
+        // let's stop the recognizer if running
+        self.stopInternal(withoutEvents: true)
         // if words is empty, set grammar to nil
         if (words == nil || words?.isEmpty == true) {
             grammar = nil
         } else {
             grammar = words
         }
-        resolve(true);
+
+        if (isRunning) {
+            // restart the recognizer if it was running
+            if (grammar != nil && grammar!.isEmpty == false) {
+                self.start(rawOptions: ["grammar": grammar!], resolve: resolve, reject: reject)
+            } else {
+                self.start(rawOptions: nil, resolve: resolve, reject: reject)
+            }
+        } else {
+            resolve(true);
+        }
     }
     
     /// Start speech recognition
