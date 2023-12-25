@@ -88,7 +88,6 @@ Note that `start()` method will ask for audio record permission.
 |---|---|---|---|
 | `loadModel` | `path: string` | `Promise<void>` | Loads the voice model used for recognition, it is required before using start method. |
 | `start` | `options: VoskOptions` or `none` | `Promise<void>` | Starts the recognizer, an `onResult()` event will be fired. |
-| `setGrammar` | `grammar: string[]` or `none` | `Promise<void>` | Reconfigures the recognizer to use grammar. |
 | `stop` | `none` | `none` | Stops the recognizer. Listener should receive final result if there is any. |
 | `unload` | `none` | `none` | Unloads the model, also stops the recognizer. |
 

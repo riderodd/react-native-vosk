@@ -13,10 +13,6 @@ RCT_EXTERN_METHOD(start:(NSDictionary *)options
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(setGrammar:(NSArray *)words
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
-
 RCT_EXTERN_METHOD(stop)
 
 + (BOOL)requiresMainQueueSetup

@@ -17,7 +17,6 @@ interface VoskInterface {
   unload: () => void;
 
   start: (options?: VoskOptions) => Promise<void>;
-  setGrammar: (grammar: string[] | null) => Promise<void>;
   stop: () => void;
 
   addListener: (eventType: string) => void;
@@ -79,20 +78,6 @@ export default class Vosk {
    */
   start = async (options?: VoskOptions) => {
     if (await this.requestRecordPermission()) return VoskModule.start(options);
-  };
-
-  /**
-   * Reconfigures recognizer to use grammar.
-   *
-   * @param grammar - Set of phrases the recognizer will seek on which is the closest one from
-   * the record, add `"[unk]"` to the set to recognize phrases striclty.
-   *
-   * @example
-   *   vosk.setGrammar(); // Disables grammar recognition
-   *   vosk.setGrammar(['cool', 'application', '[unk]']);
-   */
-  setGrammar = async (grammar: string[] | null = null) => {
-    return VoskModule.setGrammar(grammar);
   };
 
   /**
