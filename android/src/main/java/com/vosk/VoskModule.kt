@@ -149,30 +149,6 @@ class VoskModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  @ReactMethod
-  fun setGrammar(grammar: ReadableArray? = null, promise: Promise) {
-    if (recognizer == null || speechService == null) {
-      promise.reject(IOException("Recognizer is not started yet"))
-    } else {
-      try {
-        speechService!!.stop()
-        speechService!!.shutdown()
-
-        if (grammar != null)
-          recognizer!!.setGrammar(makeGrammar(grammar))
-        else
-          recognizer!!.setGrammar("[]")
-
-        speechService = SpeechService(recognizer, sampleRate)
-        if (speechService!!.startListening(this))
-          return promise.resolve("Recognizer successfully started")
-
-      } catch (e: IOException) {
-        promise.reject(e)
-      }
-    }
-  }
-
   private fun cleanRecognizer() {
     if (speechService != null) {
       speechService!!.stop()
