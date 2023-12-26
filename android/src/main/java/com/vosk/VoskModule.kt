@@ -1,11 +1,11 @@
 package com.reactnativevosk
 
-import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import org.json.JSONObject
 import org.vosk.Model
@@ -21,6 +21,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   private var speechService: SpeechService? = null
   private var context: ReactApplicationContext? = reactContext
   private var recognizer: Recognizer? = null
+  private var sampleRate = 16000.0f
 
   override fun getName(): String {
     return NAME
@@ -28,22 +29,32 @@ class VoskModule(reactContext: ReactApplicationContext) :
 
   override fun onResult(hypothesis: String) {
     // Get text data from string object
-    val text = getHypothesisText(hypothesis)
+    val text = parseHypothesis(hypothesis)
 
-    // Stop recording if data found
-    if (text != null && text.isNotEmpty()) {
-      cleanRecognizer();
+    // Send event if data found
+    if (!text.isNullOrEmpty()) {
       sendEvent("onResult", text)
     }
   }
 
   override fun onFinalResult(hypothesis: String) {
-    val text = getHypothesisText(hypothesis)
-    if (text!!.isNotEmpty()) sendEvent("onFinalResult", text)
+    // Get text data from string object
+    val text = parseHypothesis(hypothesis)
+
+    // Send event if data found
+    if (!text.isNullOrEmpty()) {
+      sendEvent("onFinalResult", text)
+    }
   }
 
   override fun onPartialResult(hypothesis: String) {
-    sendEvent("onPartialResult", hypothesis)
+    // Get text data from string object
+    val text = parseHypothesis(hypothesis, "partial")
+
+    // Send event if data found
+    if (!text.isNullOrEmpty()) {
+      sendEvent("onPartialResult", text)
+    }
   }
 
   override fun onError(e: Exception) {
@@ -51,6 +62,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onTimeout() {
+    cleanRecognizer()
     sendEvent("onTimeout")
   }
 
@@ -58,11 +70,11 @@ class VoskModule(reactContext: ReactApplicationContext) :
    * Converts hypothesis json text to the recognized text
    * @return the recognized text or null if something went wrong
    */
-  private fun getHypothesisText(hypothesis: String): String? {
-    // Hypothesis is in the form: '{text: "recognized text"}'
+  private fun parseHypothesis(hypothesis: String, key: String = "text"): String? {
+    // Hypothesis is in the form: '{[key]: "recognized text"}'
     return try {
       val res = JSONObject(hypothesis)
-      res.getString("text")
+      res.getString(key)
     } catch (tx: Throwable) {
       null
     }
@@ -72,15 +84,10 @@ class VoskModule(reactContext: ReactApplicationContext) :
    * Sends event to react native with associated data
    */
   private fun sendEvent(eventName: String, data: String? = null) {
-    // Write event data if there is some
-    val event = Arguments.createMap().apply {
-      if (data != null) putString("data", data)
-    }
-
     // Send event
     context?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit(
       eventName,
-      event
+      data
     )
   }
 
@@ -99,7 +106,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
-    cleanModel();
+    cleanModel()
     StorageService.unpack(context, path, "models",
       { model: Model? ->
         this.model = model
@@ -112,58 +119,64 @@ class VoskModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun start(grammar: ReadableArray? = null) {
-
+  fun start(options: ReadableMap? = null, promise: Promise) {
     if (model == null) {
-      sendEvent("onError", "Model is not loaded yet")
+      promise.reject(IOException("Model is not loaded yet"))
     }
     else if (speechService != null) {
-      sendEvent("onError", "Recognizer is already in use")
+      promise.reject(IOException("Recognizer is already in use"))
     } else {
       try {
         recognizer =
-          if (grammar != null)
-            Recognizer(model, 16000.0f, makeGrammar(grammar))
+          if (options != null && options.hasKey("grammar") && !options.isNull("grammar"))
+            Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
           else
-            Recognizer(model, 16000.0f)
+            Recognizer(model, sampleRate)
 
-        speechService = SpeechService(recognizer, 16000.0f)
-        speechService!!.startListening(this)
-        sendEvent("onStart")
+        speechService = SpeechService(recognizer, sampleRate)
+
+        return if (options != null && options.hasKey("timeout") && !options.isNull("timeout") && speechService!!.startListening(this, options.getInt("timeout")))
+          promise.resolve("Recognizer successfully started with timeout")
+        else if (speechService!!.startListening(this))
+          promise.resolve("Recognizer successfully started")
+        else
+          promise.reject(IOException("Recognizer couldn't be started"))
 
       } catch (e: IOException) {
-        sendEvent("onError", e.toString())
+        cleanModel()
+        promise.reject(e)
       }
     }
   }
+
   private fun cleanRecognizer() {
     if (speechService != null) {
       speechService!!.stop()
-      speechService!!.shutdown();
+      speechService!!.shutdown()
       speechService = null
     }
     if (recognizer != null) {
-      recognizer!!.close();
-      recognizer = null;
+      recognizer!!.close()
+      recognizer = null
     }
   }
 
   private fun cleanModel() {
     if (this.model != null) {
-      this.model!!.close();
-      this.model = null;
+      this.model!!.close()
+      this.model = null
     }
   }
 
   @ReactMethod
   fun stop() {
-    cleanRecognizer();
+    cleanRecognizer()
   }
 
   @ReactMethod
   fun unload() {
-    cleanRecognizer();
-    cleanModel();
+    cleanRecognizer()
+    cleanModel()
   }
 
   companion object {

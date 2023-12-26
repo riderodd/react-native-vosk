@@ -6,7 +6,7 @@ import Vosk from 'react-native-vosk';
 export default function App(): JSX.Element {
   const [ready, setReady] = useState<Boolean>(false);
   const [recognizing, setRecognizing] = useState<Boolean>(false);
-  const [result, setResult] = useState<String | undefined>();
+  const [result, setResult] = useState<string | undefined>();
 
   const vosk = useRef(new Vosk()).current;
 
@@ -15,62 +15,118 @@ export default function App(): JSX.Element {
       .loadModel('model-fr-fr')
       // .loadModel('model-en-us')
       .then(() => setReady(true))
-      .catch((e: any) => console.log(e));
+      .catch((e) => console.error(e));
   }, [vosk]);
+
+  const record = () => {
+    vosk
+      .start()
+      .then(() => {
+        console.log('Starting recognition...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordGrammar = () => {
+    vosk
+      .start({ grammar: ['cool', 'application', '[unk]'] })
+      .then(() => {
+        console.log('Starting recognition with grammar...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const recordTimeout = () => {
+    vosk
+      .start({ timeout: 5000 })
+      .then(() => {
+        console.log('Starting recognition with timeout...');
+        setRecognizing(true);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const stop = () => {
+    vosk.stop();
+    console.log('Stoping recognition...');
+    setRecognizing(false);
+  };
 
   const unload = useCallback(() => {
     vosk.unload();
     setReady(false);
+    setRecognizing(false);
   }, [vosk]);
 
   useEffect(() => {
-    const resultEvent = vosk.onResult((res: { data: String }) => {
-      console.log(res);
+    const resultEvent = vosk.onResult((res) => {
+      console.log('An onResult event has been caught: ' + res);
+      setResult(res);
+    });
 
-      console.log('A onResult event has been caught: ' + res.data);
+    const partialResultEvent = vosk.onPartialResult((res) => {
+      setResult(res);
+    });
+
+    const finalResultEvent = vosk.onFinalResult((res) => {
+      setResult(res);
+    });
+
+    const errorEvent = vosk.onError((e) => {
+      console.error(e);
+    });
+
+    const timeoutEvent = vosk.onTimeout(() => {
+      console.log('Recognizer timed out');
+      setRecognizing(false);
     });
 
     return () => {
       resultEvent.remove();
+      partialResultEvent.remove();
+      finalResultEvent.remove();
+      errorEvent.remove();
+      timeoutEvent.remove();
     };
   }, [vosk]);
-
-  const grammar = ['gauche', 'droite', '[unk]'];
-  // const grammar = ['left', 'right', '[unk]'];
-
-  const record = () => {
-    if (!ready) return;
-    console.log('Starting recognition...');
-
-    setRecognizing(true);
-
-    vosk
-      .start(grammar)
-      .then((res: string) => {
-        console.log('Result is: ' + res);
-        setResult(res);
-      })
-      .catch((e: any) => {
-        console.log('Error: ' + e);
-      })
-      .finally(() => {
-        setRecognizing(false);
-      });
-  };
 
   return (
     <View style={styles.container}>
       <Button
         onPress={ready ? unload : load}
-        title={ready ? "Unload model" : "Load model"}
+        title={ready ? 'Unload model' : 'Load model'}
         color="blue"
       />
-      <Button
-        onPress={record}
-        title="Record"
-        disabled={ready === false || recognizing === true}
-        color="#841584"
-      />
+
+      {!recognizing && (
+        <View style={styles.recordingButtons}>
+          <Button
+            title="Record"
+            onPress={record}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with grammar"
+            onPress={recordGrammar}
+            disabled={!ready}
+            color="green"
+          />
+
+          <Button
+            title="Record with timeout"
+            onPress={recordTimeout}
+            disabled={!ready}
+            color="green"
+          />
+        </View>
+      )}
+
+      {recognizing && <Button onPress={stop} title="Stop" color="red" />}
+
       <Text>Recognized word:</Text>
       <Text>{result}</Text>
     </View>
@@ -79,13 +135,15 @@ export default function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
+    gap: 25,
     flex: 1,
+    display: 'flex',
+    textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+  recordingButtons: {
+    gap: 15,
+    display: 'flex',
   },
 });

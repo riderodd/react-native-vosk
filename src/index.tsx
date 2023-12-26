@@ -1,5 +1,4 @@
 import {
-  type EmitterSubscription,
   type EventSubscription,
   NativeEventEmitter,
   NativeModules,
@@ -13,7 +12,18 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-const VoskModule = NativeModules.Vosk
+interface VoskInterface {
+  loadModel: (path: string) => Promise<void>;
+  unload: () => void;
+
+  start: (options?: VoskOptions) => Promise<void>;
+  stop: () => void;
+
+  addListener: (eventType: string) => void;
+  removeListeners: (count: number) => void;
+}
+
+const VoskModule: VoskInterface = NativeModules.Vosk
   ? NativeModules.Vosk
   : new Proxy(
       {},
@@ -24,99 +34,87 @@ const VoskModule = NativeModules.Vosk
       }
     );
 
-type VoskEvent = {
+type VoskOptions = {
   /**
-   * Event datas
+   * Set of phrases the recognizer will seek on which is the closest one from
+   * the record, add `"[unk]"` to the set to recognize phrases striclty.
    */
-  data: string;
+  grammar?: string[];
+  /**
+   * Timeout in milliseconds to listen.
+   */
+  timeout?: number;
 };
 
 const eventEmitter = new NativeEventEmitter(VoskModule);
 
 export default class Vosk {
   // Public functions
+
+  /**
+   * Loads the model from specified path
+   *
+   * @param path - Path of the model.
+   *
+   * @example
+   *   vosk.loadModel('model-fr-fr').then(() => {
+   *      setLoaded(true);
+   *   });
+   */
   loadModel = (path: string) => VoskModule.loadModel(path);
 
-  currentRegisteredEvents: EmitterSubscription[] = [];
-
-  start = (grammar: string[] | null = null): Promise<String> => {
-    return new Promise<String>((resolve, reject) => {
-      // Check for permission
-      this.requestRecordPermission()
-        .then((granted) => {
-          if (!granted) return reject('Audio record permission denied');
-
-          // Setup events
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onResult', (e: VoskEvent) =>
-              resolve(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onFinalResult', (e: VoskEvent) =>
-              resolve(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onError', (e: VoskEvent) =>
-              reject(e.data)
-            )
-          );
-          this.currentRegisteredEvents.push(
-            eventEmitter.addListener('onTimeout', () => reject('timeout'))
-          );
-
-          // Start recognition
-          VoskModule.start(grammar);
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    }).finally(() => {
-      this.cleanListeners();
-    });
+  /**
+   * Asks for recording permissions then starts the recognizer.
+   *
+   * @param options - Optional settings for the recognizer.
+   *
+   * @example
+   *   vosk.start().then(() => console.log("Recognizer started"));
+   *
+   *   vosk.start({
+   *      grammar: ['cool', 'application', '[unk]'],
+   *      timeout: 5000,
+   *   }).catch(e => console.log(e));
+   */
+  start = async (options?: VoskOptions) => {
+    if (await this.requestRecordPermission()) return VoskModule.start(options);
   };
 
-  stop = () => {
-    this.cleanListeners();
-    VoskModule.stop();
-  };
+  /**
+   * Stops the recognizer. Listener should receive final result if there is any.
+   */
+  stop = () => VoskModule.stop();
 
-  unload = () => {
-    this.cleanListeners();
-    VoskModule.unload();
-  };
+  /**
+   * Unloads the model, also stops the recognizer.
+   */
+  unload = () => VoskModule.unload();
 
   // Event listeners builders
-  onResult = (onResult: (e: VoskEvent) => void): EventSubscription => {
-    return eventEmitter.addListener('onResult', onResult);
+
+  onResult = (cb: (e: string) => void): EventSubscription => {
+    return eventEmitter.addListener('onResult', cb);
   };
-  onFinalResult = (
-    onFinalResult: (e: VoskEvent) => void
-  ): EventSubscription => {
-    return eventEmitter.addListener('onFinalResult', onFinalResult);
+  onPartialResult = (cb: (e: string) => void): EventSubscription => {
+    return eventEmitter.addListener('onPartialResult', cb);
   };
-  onError = (onError: (e: VoskEvent) => void): EventSubscription => {
-    return eventEmitter.addListener('onError', onError);
+  onFinalResult = (cb: (e: string) => void): EventSubscription => {
+    return eventEmitter.addListener('onFinalResult', cb);
   };
-  onTimeout = (onTimeout: (e: VoskEvent) => void): EventSubscription => {
-    return eventEmitter.addListener('onTimeout', onTimeout);
+  onError = (cb: (e: any) => void): EventSubscription => {
+    return eventEmitter.addListener('onError', cb);
+  };
+  onTimeout = (cb: () => void): EventSubscription => {
+    return eventEmitter.addListener('onTimeout', cb);
   };
 
   // Private functions
+
   private requestRecordPermission = async () => {
     if (Platform.OS === 'ios') return true;
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO!
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;
-  };
-
-  private cleanListeners = () => {
-    // Clean event listeners
-    this.currentRegisteredEvents.forEach((subscription) =>
-      subscription.remove()
-    );
-    this.currentRegisteredEvents = [];
   };
 }
