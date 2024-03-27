@@ -147,7 +147,7 @@ class Vosk: RCTEventEmitter {
                         } else if (!res.completed && self.hasListener && res.result != nil) {
                             // check if partial result is different from last one
                             if (self.lastRecognizedResult == nil || self.lastRecognizedResult!.partial != parsedResult.partial && !parsedResult.partial!.isEmpty) {
-                                self.sendEvent(withName: "onPartialResult", body: parsedResult.partial!.data)
+                                self.sendEvent(withName: "onPartialResult", body: parsedResult.partial)
                             }
                         }
                         self.lastRecognizedResult = parsedResult
