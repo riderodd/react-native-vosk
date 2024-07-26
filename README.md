@@ -14,7 +14,11 @@ npm install -S react-native-vosk
 
 Vosk uses prebuilt models to perform speech recognition offline. You have to download the model(s) that you need on [Vosk official website](https://alphacephei.com/vosk/models)
 Avoid using too heavy models, because the computation time required to load them into your app could lead to bad user experience.
-Then, unzip the model in your app folder. If you just need to use the iOS version, put the model folder wherever you want, and import it as described below. If you need both iOS and Android to work, you can avoid to copy the model twice for both projects by importing the model from the Android assets folder in XCode. Just do as follow:
+Then, unzip the model in your app folder. If you just need to use the iOS version, put the model folder wherever you want, and import it as described below. If you need both iOS and Android to work, you can avoid to copy the model twice for both projects by importing the model from the Android assets folder in XCode. 
+
+**Experimental**: Loading a model dynamically into the app storage, aside from the main bundle is a new and experimental feature. Would love for you all to test, and let us know if it is a viable option. If you choose to download a model to your app’s storage (preferably internal), you can pass the model directory path when calling `vosk.loadModel(path)`.
+
+To download and load a model as part of an app's Main Bundle, just do as follows:
 
 ### Android
 
@@ -81,6 +85,50 @@ vosk
 Note that `start()` method will ask for audio record permission.
 
 [See complete example...](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
+
+## Experimental Loading via Path
+
+* Primarily intended for models that are not included in the app’s Main Bundle.
+
+### Preliminary Steps
+* Use a file system package to download and store a model from remote location
+  * [react-native-file-access](https://www.npmjs.com/package/react-native-file-access) is one that we found to be stable, but this is a personal preference based on use
+
+```js
+import Vosk from 'react-native-vosk';
+
+// ...
+
+const vosk = new Vosk();
+
+const path = "some/path/to/model/directory";
+
+vosk
+  .loadModel(path)
+  .then(() => {
+    const options = {
+      grammar: ['left', 'right', '[unk]'],
+    };
+
+    vosk
+      .start(options)
+      .then(() => {
+        console.log('Recognizer successfuly started');
+      })
+      .catch((e) => {
+        console.log('Error: ' + e);
+      });
+
+    const resultEvent = vosk.onResult((res) => {
+      console.log('A onResult event has been caught: ' + res);
+    });
+
+    // Don't forget to call resultEvent.remove(); to delete the listener
+  })
+  .catch((e) => {
+    console.error(e);
+  });
+```
 
 ### Methods
 

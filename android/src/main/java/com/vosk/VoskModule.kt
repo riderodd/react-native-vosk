@@ -107,14 +107,22 @@ class VoskModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun loadModel(path: String, promise: Promise) {
     cleanModel()
-    StorageService.unpack(context, path, "models",
-      { model: Model? ->
-        this.model = model
-        promise.resolve("Model successfully loaded")
+    try {
+      this.model = Model(path)
+      promise.resolve("Model successfully loaded")
+    } catch (e: IOException) {
+      println("Model directory does not exist at path: " + path)
+      
+      // Load model from main app bundle
+      StorageService.unpack(context, path, "models",
+        { model: Model? ->
+          this.model = model
+          promise.resolve("Model successfully loaded")
+        }
+      ) { e: IOException ->
+        this.model = null
+        promise.reject(e)
       }
-    ) { e: IOException ->
-      this.model = null
-      promise.reject(e)
     }
   }
 

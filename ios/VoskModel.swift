@@ -20,10 +20,15 @@ public final class VoskModel {
         
         let appBundle = Bundle(for: Self.self)
         
-        // Load model from main app bundle
-        if let resourcePath = Bundle.main.resourcePath {
-            let modelPath = resourcePath + "/" + name
-            model = vosk_model_new(modelPath)
+        if let model = vosk_model_new(name) {
+            print("Model successfully loaded from path.")
+        } else {
+            print("Model directory does not exist at path: \(name)")
+            // Load model from main app bundle
+            if let resourcePath = Bundle.main.resourcePath {
+                let modelPath = resourcePath + "/" + name
+                model = vosk_model_new(modelPath)
+            }
         }
 
         // Get the URL to the spk model inside this pod
