@@ -20,8 +20,9 @@ public final class VoskModel {
         
         let appBundle = Bundle(for: Self.self)
         
-        if let model = vosk_model_new(name) {
+        if let loadedModel = vosk_model_new(name) {
             print("Model successfully loaded from path.")
+            model = loadedModel
         } else {
             print("Model directory does not exist at path: \(name)")
             // Load model from main app bundle
