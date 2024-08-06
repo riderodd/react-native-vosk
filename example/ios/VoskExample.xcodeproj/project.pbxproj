@@ -11,10 +11,11 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		2BF250CD2DBC4B2283BA3057 /* libPods-VoskExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D6C147F7EF715E31EA41620 /* libPods-VoskExample.a */; };
+		1BFF2DD0DDDBFFCF4CF257C1 /* libPods-VoskExample-VoskExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E76A47B848064B966C8CF1C /* libPods-VoskExample-VoskExampleTests.a */; };
 		33FD423A2B5490E700FCFB2E /* model-fr-fr in Resources */ = {isa = PBXBuildFile; fileRef = 33FD42392B5490E700FCFB2E /* model-fr-fr */; };
-		5A930D6804B5963052277CCC /* libPods-VoskExample-VoskExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A1FFFBC57287C5B293B9B7F /* libPods-VoskExample-VoskExampleTests.a */; };
+		41D5FBB44E115BEBB9FCB236 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 18ED96E7083D392A80D4ADF9 /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		E181F298EC660238E9A44244 /* libPods-VoskExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 171F85E60E79B877DAD6C83B /* libPods-VoskExample.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,20 +32,22 @@
 		00E356EE1AD99517003FC87E /* VoskExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoskExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* VoskExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoskExampleTests.m; sourceTree = "<group>"; };
-		0A1FFFBC57287C5B293B9B7F /* libPods-VoskExample-VoskExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VoskExample-VoskExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* VoskExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoskExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = VoskExample/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = VoskExample/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = VoskExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = VoskExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VoskExample/main.m; sourceTree = "<group>"; };
-		2AE5E79ED45791B160BD5897 /* Pods-VoskExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.release.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.release.xcconfig"; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = VoskExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		171F85E60E79B877DAD6C83B /* libPods-VoskExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VoskExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		18ED96E7083D392A80D4ADF9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = VoskExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		33FD42392B5490E700FCFB2E /* model-fr-fr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "model-fr-fr"; path = "../android/app/src/main/assets/model-fr-fr"; sourceTree = "<group>"; };
-		48718C82E017CCF4CDA00846 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample-VoskExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		4D0D09889662CD253A763DB1 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample-VoskExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		421EC37E0502C60C95A43C27 /* Pods-VoskExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.debug.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.debug.xcconfig"; sourceTree = "<group>"; };
+		6E76A47B848064B966C8CF1C /* libPods-VoskExample-VoskExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VoskExample-VoskExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VoskExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		9D6C147F7EF715E31EA41620 /* libPods-VoskExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VoskExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D5296F7D810B521AC8AA4842 /* Pods-VoskExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.debug.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.debug.xcconfig"; sourceTree = "<group>"; };
+		A7A80FDB1D4469AF95910F06 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample-VoskExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		B3BD60AD938744080286BC76 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample-VoskExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
+		EACF3371D6738AFA0C1F7F75 /* Pods-VoskExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoskExample.release.xcconfig"; path = "Target Support Files/Pods-VoskExample/Pods-VoskExample.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -53,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A930D6804B5963052277CCC /* libPods-VoskExample-VoskExampleTests.a in Frameworks */,
+				1BFF2DD0DDDBFFCF4CF257C1 /* libPods-VoskExample-VoskExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BF250CD2DBC4B2283BA3057 /* libPods-VoskExample.a in Frameworks */,
+				E181F298EC660238E9A44244 /* libPods-VoskExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +98,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				18ED96E7083D392A80D4ADF9 /* PrivacyInfo.xcprivacy */,
 			);
 			name = VoskExample;
 			sourceTree = "<group>";
@@ -103,8 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				9D6C147F7EF715E31EA41620 /* libPods-VoskExample.a */,
-				0A1FFFBC57287C5B293B9B7F /* libPods-VoskExample-VoskExampleTests.a */,
+				171F85E60E79B877DAD6C83B /* libPods-VoskExample.a */,
+				6E76A47B848064B966C8CF1C /* libPods-VoskExample-VoskExampleTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,10 +148,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D5296F7D810B521AC8AA4842 /* Pods-VoskExample.debug.xcconfig */,
-				2AE5E79ED45791B160BD5897 /* Pods-VoskExample.release.xcconfig */,
-				48718C82E017CCF4CDA00846 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */,
-				4D0D09889662CD253A763DB1 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */,
+				421EC37E0502C60C95A43C27 /* Pods-VoskExample.debug.xcconfig */,
+				EACF3371D6738AFA0C1F7F75 /* Pods-VoskExample.release.xcconfig */,
+				B3BD60AD938744080286BC76 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */,
+				A7A80FDB1D4469AF95910F06 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -158,12 +163,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "VoskExampleTests" */;
 			buildPhases = (
-				1CE1ED01CEDAD8135B18518F /* [CP] Check Pods Manifest.lock */,
+				F6AABD1602A7A381B99E070C /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				F2B3DB384544C6DF3B03214F /* [CP] Embed Pods Frameworks */,
-				4315BDEEF92FCA10E11F247F /* [CP] Copy Pods Resources */,
+				DC3DDFFCB376435E881DE314 /* [CP] Embed Pods Frameworks */,
+				6676DC8862BE64FDD7B6184C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -179,13 +184,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "VoskExample" */;
 			buildPhases = (
-				EBA5908A44F641A038500EF5 /* [CP] Check Pods Manifest.lock */,
+				74D1E06209C15FFD78F37A01 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				CA499BA75102655A3CD7E909 /* [CP] Embed Pods Frameworks */,
-				A75D0327AB5E415B9244CA50 /* [CP] Copy Pods Resources */,
+				3C47C89FB4A0872ACD288185 /* [CP] Embed Pods Frameworks */,
+				745B50F9B450487071F6FC97 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -247,6 +252,7 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				33FD423A2B5490E700FCFB2E /* model-fr-fr in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				41D5FBB44E115BEBB9FCB236 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,31 +273,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		1CE1ED01CEDAD8135B18518F /* [CP] Check Pods Manifest.lock */ = {
+		3C47C89FB4A0872ACD288185 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VoskExample-VoskExampleTests-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4315BDEEF92FCA10E11F247F /* [CP] Copy Pods Resources */ = {
+		6676DC8862BE64FDD7B6184C /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -308,7 +309,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A75D0327AB5E415B9244CA50 /* [CP] Copy Pods Resources */ = {
+		745B50F9B450487071F6FC97 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -325,24 +326,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CA499BA75102655A3CD7E909 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VoskExample/Pods-VoskExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EBA5908A44F641A038500EF5 /* [CP] Check Pods Manifest.lock */ = {
+		74D1E06209C15FFD78F37A01 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -364,7 +348,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F2B3DB384544C6DF3B03214F /* [CP] Embed Pods Frameworks */ = {
+		DC3DDFFCB376435E881DE314 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -379,6 +363,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VoskExample-VoskExampleTests/Pods-VoskExample-VoskExampleTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F6AABD1602A7A381B99E070C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VoskExample-VoskExampleTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -414,7 +420,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 48718C82E017CCF4CDA00846 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */;
+			baseConfigurationReference = B3BD60AD938744080286BC76 /* Pods-VoskExample-VoskExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -441,7 +447,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4D0D09889662CD253A763DB1 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */;
+			baseConfigurationReference = A7A80FDB1D4469AF95910F06 /* Pods-VoskExample-VoskExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -465,7 +471,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5296F7D810B521AC8AA4842 /* Pods-VoskExample.debug.xcconfig */;
+			baseConfigurationReference = 421EC37E0502C60C95A43C27 /* Pods-VoskExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -492,7 +498,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2AE5E79ED45791B160BD5897 /* Pods-VoskExample.release.xcconfig */;
+			baseConfigurationReference = EACF3371D6738AFA0C1F7F75 /* Pods-VoskExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -519,6 +525,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -546,6 +553,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -565,6 +573,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -583,12 +593,9 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -599,6 +606,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -626,6 +634,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -638,6 +647,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -655,12 +666,9 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
