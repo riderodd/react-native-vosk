@@ -15,8 +15,8 @@ import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import java.io.IOException
 
-class VoskModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext), RecognitionListener {
+class VoskModule internal constructor(context: ReactApplicationContext) :
+  VoskSpec(context), ReactContextBaseJavaModule(reactContext), RecognitionListener {
   private var model: Model? = null
   private var speechService: SpeechService? = null
   private var context: ReactApplicationContext? = reactContext
