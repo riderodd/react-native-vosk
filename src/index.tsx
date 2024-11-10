@@ -5,7 +5,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import type { VoskInterface, VoskOptions } from './types';
+import type { VoskInterface, VoskOptions } from './index.d';
 
 const LINKING_ERROR =
   `The package 'react-native-vosk' doesn't seem to be linked. Make sure: \n\n` +
@@ -13,15 +13,8 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-// @ts-expect-error
-const isTurboModuleEnabled = global.__turboModuleProxy != null;
-
-const VoskImport = isTurboModuleEnabled
-  ? require('./NativeVosk').default
-  : NativeModules.Vosk;
-
-const VoskModule: VoskInterface = VoskImport
-  ? VoskImport
+const VoskModule: VoskInterface = NativeModules.Vosk
+  ? NativeModules.Vosk
   : new Proxy(
       {},
       {

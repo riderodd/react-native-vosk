@@ -1,35 +1,17 @@
-package com.reactnativevosk
+package com.vosk
 
-import com.facebook.react.TurboReactPackage
-import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
-import com.facebook.react.module.model.ReactModuleInfoProvider
-import com.facebook.react.module.model.ReactModuleInfo
-import java.util.HashMap
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.uimanager.ViewManager
 
-class VoskPackage : TurboReactPackage() {
-  override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
-    return if (name == VoskModule.NAME) {
-      VoskModule(reactContext)
-    } else {
-      null
-    }
+
+class VoskPackage : ReactPackage {
+  override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+    return listOf(VoskModule(reactContext))
   }
 
-  override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
-    return ReactModuleInfoProvider {
-      val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
-      val isTurboModule: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-      moduleInfos[VoskModule.NAME] = ReactModuleInfo(
-        VoskModule.NAME,
-        VoskModule.NAME,
-        false,  // canOverrideExistingModule
-        false,  // needsEagerInit
-        true,  // hasConstants
-        false,  // isCxxModule
-        isTurboModule // isTurboModule
-      )
-      moduleInfos
-    }
+  override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+    return emptyList()
   }
 }

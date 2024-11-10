@@ -1,9 +1,9 @@
-package com.reactnativevosk
+package com.vosk
 
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -15,8 +15,9 @@ import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import java.io.IOException
 
-class VoskModule internal constructor(context: ReactApplicationContext) :
-  VoskSpec(context), ReactContextBaseJavaModule(reactContext), RecognitionListener {
+class VoskModule(reactContext: ReactApplicationContext) :
+  ReactContextBaseJavaModule(reactContext), RecognitionListener {
+
   private var model: Model? = null
   private var speechService: SpeechService? = null
   private var context: ReactApplicationContext? = reactContext
@@ -27,7 +28,7 @@ class VoskModule internal constructor(context: ReactApplicationContext) :
     return NAME
   }
 
-  override fun onResult(hypothesis: String) {
+override fun onResult(hypothesis: String) {
     // Get text data from string object
     val text = parseHypothesis(hypothesis)
 
@@ -112,7 +113,7 @@ class VoskModule internal constructor(context: ReactApplicationContext) :
       promise.resolve("Model successfully loaded")
     } catch (e: IOException) {
       println("Model directory does not exist at path: " + path)
-      
+
       // Load model from main app bundle
       StorageService.unpack(context, path, "models",
         { model: Model? ->

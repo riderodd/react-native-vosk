@@ -1,6 +1,6 @@
 {
   "name": "react-native-vosk",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "Speech recognition module for react native using Vosk library",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
@@ -24,6 +24,7 @@
     "ios",
     "cpp",
     "*.podspec",
+    "react-native.config.json",
     "!ios/build",
     "!android/build",
     "!android/gradle",
@@ -36,7 +37,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace example",
+    "example": "yarn workspace react-native-vosk-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -49,8 +50,11 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/riderodd/react-native-vosk",
-  "author": "Joris Gaudin <contact@jg-web.site> (https://www.jg-web.site/)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riderodd/react-native-vosk.git"
+  },
+  "author": "riderodd <contact@jg-web.site> (https://github.com/riderodd)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/riderodd/react-native-vosk/issues"
@@ -63,28 +67,25 @@
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native/eslint-config": "^0.73.1",
-    "@release-it/conventional-changelog": "^8.0.1",
+    "@release-it/conventional-changelog": "^9.0.2",
     "@types/jest": "^29.5.5",
-    "@types/react": "^18.2.45",
-    "@types/react-native": "^0.73.0",
+    "@types/react": "^18.2.44",
     "commitlint": "^17.0.2",
     "del-cli": "^5.1.0",
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-ft-flow": "latest",
     "eslint-plugin-prettier": "^5.0.1",
     "jest": "^29.7.0",
-    "pod-install": "^0.2.2",
     "prettier": "^3.0.3",
-    "react": "18.2.0",
-    "react-native": "^0.73.1",
-    "react-native-builder-bob": "^0.29.0",
-    "release-it": "^17.6.0",
+    "react": "18.3.1",
+    "react-native": "0.76.1",
+    "react-native-builder-bob": "^0.31.0",
+    "release-it": "^17.10.0",
     "turbo": "^1.10.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.2.2"
   },
   "resolutions": {
-    "@types/react": "18.2.44"
+    "@types/react": "^18.2.44"
   },
   "peerDependencies": {
     "react": "*",
@@ -93,9 +94,9 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@3.6.4",
+  "packageManager": "yarn@3.6.1",
   "engines": {
-    "node": ">= 20.0.0"
+    "node": ">= 18.0.0"
   },
   "jest": {
     "preset": "react-native",
@@ -163,5 +164,10 @@
         }
       ]
     ]
+  },
+  "create-react-native-library": {
+    "type": "module-legacy",
+    "languages": "kotlin-swift",
+    "version": "0.43.0"
   }
 }
