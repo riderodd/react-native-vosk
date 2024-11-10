@@ -5,23 +5,13 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
+import type { VoskInterface, VoskOptions } from './index.d';
 
 const LINKING_ERROR =
   `The package 'react-native-vosk' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
-
-interface VoskInterface {
-  loadModel: (path: string) => Promise<void>;
-  unload: () => void;
-
-  start: (options?: VoskOptions) => Promise<void>;
-  stop: () => void;
-
-  addListener: (eventType: string) => void;
-  removeListeners: (count: number) => void;
-}
 
 const VoskModule: VoskInterface = NativeModules.Vosk
   ? NativeModules.Vosk
@@ -33,18 +23,6 @@ const VoskModule: VoskInterface = NativeModules.Vosk
         },
       }
     );
-
-type VoskOptions = {
-  /**
-   * Set of phrases the recognizer will seek on which is the closest one from
-   * the record, add `"[unk]"` to the set to recognize phrases striclty.
-   */
-  grammar?: string[];
-  /**
-   * Timeout in milliseconds to listen.
-   */
-  timeout?: number;
-};
 
 const eventEmitter = new NativeEventEmitter(VoskModule);
 

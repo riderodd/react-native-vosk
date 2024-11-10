@@ -14,6 +14,11 @@ buildscript {
   }
 }
 
+def reactNativeArchitectures() {
+  def value = rootProject.getProperties().get("reactNativeArchitectures")
+  return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+}
+
 def isNewArchitectureEnabled() {
   return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
 }
@@ -44,7 +49,7 @@ def supportsNamespace() {
 
 android {
   if (supportsNamespace()) {
-    namespace "com.reactnativevosk"
+    namespace "com.vosk"
 
     sourceSets {
       main {
@@ -85,12 +90,13 @@ repositories {
 // Generate UUIDs for each models contained in android/src/main/assets/
 tasks.register('genUUID') {
   doLast {
-    fileTree(dir: "$rootDir/app/src/main/assets", exclude: ['*/*']).visit { fileDetails ->
-      if (fileDetails.directory) {
-        def odir = file("$rootDir/app/src/main/assets/$fileDetails.relativePath")
-        def ofile = file("$odir/uuid")
-        mkdir odir
-        ofile.text = UUID.randomUUID().toString()
+    def searchDir = rootDir.toPath()
+    fileTree(dir: "$searchDir/app/src/main/assets", exclude: ['*/*']).visit { fileDetails ->
+      if (fileDetails.directory && fileDetails.file.name.startsWith("model")) {
+        def outDir = file("$searchDir/app/src/main/assets/$fileDetails.relativePath")
+        mkdir outDir
+        def outFile = file("$outDir/uuid")
+        outFile.text = UUID.randomUUID().toString()
       }
     }
   }

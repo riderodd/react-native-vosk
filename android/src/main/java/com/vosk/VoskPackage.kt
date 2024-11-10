@@ -1,4 +1,4 @@
-package com.reactnativevosk
+package com.vosk
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

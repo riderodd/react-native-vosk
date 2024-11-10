@@ -46,10 +46,10 @@ class Vosk: RCTEventEmitter {
     var timeoutTimer: Timer?
     /// The current grammar set
     var grammar: [String]?
-    
+
     /// React member: has any JS event listener
     var hasListener: Bool = false
-    
+
     // Class methods
     override init() {
         super.init()
@@ -60,34 +60,34 @@ class Vosk: RCTEventEmitter {
         // Get the microphone default input format
         formatInput = inputNode.inputFormat(forBus: 0)
     }
-    
+
     deinit {
         // free the recognizer
         vosk_recognizer_free(recognizer);
     }
-    
+
     /// Called when React adds an event observer
     override func startObserving() {
         hasListener = true
     }
-    
+
     /// Called when no more event observers are running
     override func stopObserving() {
         hasListener = false
     }
-    
+
     /// React method to define allowed events
     @objc override func supportedEvents() -> [String]! {
         return ["onError","onResult","onFinalResult","onPartialResult","onTimeout"];
     }
-    
+
     /// Load a Vosk model
     @objc(loadModel:withResolver:withRejecter:)
     func loadModel(name: String, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         if (currentModel != nil) {
             currentModel = nil; // deinit model
         }
-        
+
         // Load the model in a try catch block
         do {
             try currentModel = VoskModel(name: name)
@@ -96,45 +96,45 @@ class Vosk: RCTEventEmitter {
             reject(nil, nil, nil);
         }
     }
-    
+
     /// Start speech recognition
     @objc(start:withResolver:withRejecter:)
     func start(rawOptions: [String : Any]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         let audioSession = AVAudioSession.sharedInstance()
-        
+
         var options : VoskStartOptions? = nil;
         do {
             options = (rawOptions != nil) ? try VoskStartOptions(dictionary: rawOptions!) : nil
         } catch {
             print(error)
         }
-        
+
         // if grammar is set in options, override the current grammar
         var grammar: [String]? = nil
         if (options?.grammar != nil && options?.grammar!.isEmpty == false) {
             grammar = options?.grammar
         }
-        
+
         // if timeout is set in options, handle it
         var timeout: Int? = nil
         if (options?.timeout != nil) {
             timeout = options?.timeout
         }
-        
+
         do {
             // Ask the user for permission to use the mic if required then start the engine.
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            
+
             if (grammar != nil && grammar!.isEmpty == false) {
                 let jsonGrammar = try! JSONEncoder().encode(grammar);
                 recognizer = vosk_recognizer_new_grm(currentModel!.model, Float(formatInput.sampleRate), String(data: jsonGrammar, encoding: .utf8))
             } else {
                 recognizer = vosk_recognizer_new(currentModel!.model, Float(formatInput.sampleRate))
             }
-            
+
             let formatPcm = AVAudioFormat.init(commonFormat: AVAudioCommonFormat.pcmFormatInt16, sampleRate: formatInput.sampleRate, channels: 1, interleaved: true)
-            
+
             inputNode.installTap(onBus: 0,
                                  bufferSize: UInt32(formatInput.sampleRate / 10),
                                  format: formatPcm) { buffer, time in
@@ -154,15 +154,15 @@ class Vosk: RCTEventEmitter {
                     }
                 }
             }
-            
+
             // Start the stream of audio data.
             audioEngine.prepare()
-            
+
             audioSession.requestRecordPermission { [weak self] success in
                 guard success, let self = self else { return }
                 try? self.audioEngine.start()
             }
-            
+
             // and manage timeout if set in options
             if (timeout != nil) {
                 // Run timer on main thread
@@ -176,7 +176,7 @@ class Vosk: RCTEventEmitter {
                     }
                 }
             }
-            
+
             resolve("Recognizer successfully started");
         } catch {
             if (hasListener) {
@@ -188,7 +188,7 @@ class Vosk: RCTEventEmitter {
             reject("start", error.localizedDescription, error);
         }
     }
-    
+
     /// Unload speech recognition and model
     @objc(unload) func unload() -> Void {
         stopInternal(withoutEvents: false)
@@ -196,13 +196,13 @@ class Vosk: RCTEventEmitter {
             currentModel = nil; // deinit model
         }
     }
-    
+
     /// Stop speech recognition if started
     @objc(stop) func stop() -> Void {
         // stop engines and send onFinalResult event
         stopInternal(withoutEvents: false)
     }
-    
+
     /// Do internal cleanup on stop recognition
     func stopInternal(withoutEvents: Bool) {
         inputNode.removeTap(onBus: 0)
@@ -222,7 +222,7 @@ class Vosk: RCTEventEmitter {
             timeoutTimer = nil
         }
     }
-    
+
     /// Process the audio buffer and do recognition with Vosk
     func recognizeData(buffer : AVAudioPCMBuffer) -> (result: String?, completed: Bool) {
         let dataLen = Int(buffer.frameLength * 2)

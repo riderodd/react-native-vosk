@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
 import Vosk from 'react-native-vosk';

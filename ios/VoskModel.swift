@@ -9,17 +9,17 @@
 import Foundation
 
 public final class VoskModel {
-    
+
     var model : OpaquePointer!
     var spkModel : OpaquePointer!
-    
+
     init(name: String) throws {
-        
+
         // Set to -1 to disable logs
         vosk_set_log_level(0);
-        
+
         let appBundle = Bundle(for: Self.self)
-        
+
         if let loadedModel = vosk_model_new(name) {
             print("Model successfully loaded from path.")
             model = loadedModel
@@ -37,11 +37,10 @@ public final class VoskModel {
             spkModel = vosk_spk_model_new(spkModelPath)
         }
     }
-    
+
     deinit {
         vosk_model_free(model)
         vosk_spk_model_free(spkModel)
     }
-    
-}
 
+}
