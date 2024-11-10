@@ -38,15 +38,15 @@ You can import as many models as you want.
 
 ### iOS
 
-In XCode, right-click on your project folder, and click on `"Add files to [your project name]"`.
+In XCode, click on your App on the projects pannel, then go to the `Build phases` tab of settings pannel. Scroll down to the `Copy bundle resources` accordion. Click on the `+` button at the end of the list. Click on the `Add other...` button at the bottom of the prompt window.
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png" alt="XCode add files to project" width="200" /></a>
 
-Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it.
+Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it. Click on `Open`.
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png" alt="XCode chose model folder" width="200" /></a>
 
-That's all. The model folder should appear in your project. When you click on it, your project target should be checked (see below).
+Check `Copy items if needed`. If you want to avoid having the model living twice in your app folders in order to reduce your bundle size, select `Create folder references`. That's all. The model folder should appear in your project. When you click on it, your project target should be checked (see below).
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png" alt="XCode full settings screenshot" width="200" /></a>
 
