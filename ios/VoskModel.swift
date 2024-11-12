@@ -20,11 +20,12 @@ public final class VoskModel {
 
         let appBundle = Bundle(for: Self.self)
 
+        let name = name.replacingOccurrences(of: "file://", with: "")
         if let loadedModel = vosk_model_new(name) {
             print("Model successfully loaded from path.")
             model = loadedModel
         } else {
-            print("Model directory does not exist at path: \(name)")
+            print("Model directory does not exist at path: \(name). Attempt to load model from main app bundle.")
             // Load model from main app bundle
             if let resourcePath = Bundle.main.resourcePath {
                 let modelPath = resourcePath + "/" + name
