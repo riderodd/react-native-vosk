@@ -2513,6 +2513,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-config-apple@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@react-native-community/cli-config-apple@npm:16.0.0"
+  dependencies:
+    "@react-native-community/cli-tools": 16.0.0
+    chalk: ^4.1.2
+    execa: ^5.0.0
+    fast-glob: ^3.3.2
+  checksum: 9f02be7dffb427c5ac997c73e6e9181fb5bb2fd31551b6fca0fc0d224322a7469412e98eb15c58044c1b6ea6e5ee723923bf85f7084942cb01678b6ce4f7711b
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-config@npm:15.0.0":
   version: 15.0.0
   resolution: "@react-native-community/cli-config@npm:15.0.0"
@@ -2588,12 +2600,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-platform-apple@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@react-native-community/cli-platform-apple@npm:16.0.0"
+  dependencies:
+    "@react-native-community/cli-config-apple": 16.0.0
+    "@react-native-community/cli-tools": 16.0.0
+    chalk: ^4.1.2
+    execa: ^5.0.0
+    fast-xml-parser: ^4.4.1
+  checksum: 2c62682e91d03e0e83153bc6b8f9b9ff9fbe867f6394aa0078541066b3378970ac6211b8aec74d372a7cd9536b52e60859cb73adbf0535e4fd3288ef76647e0b
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-platform-ios@npm:15.0.0":
   version: 15.0.0
   resolution: "@react-native-community/cli-platform-ios@npm:15.0.0"
   dependencies:
     "@react-native-community/cli-platform-apple": 15.0.0
   checksum: 8394161e6d64f720699bb2e34f9e58cb242ea331eeda32026762c20200f8ea3c5334f60ac770c61a13684cb8836755b6ccaf51da5a4f3ea89c416b163f2b68f2
+  languageName: node
+  linkType: hard
+
+"@react-native-community/cli-platform-ios@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@react-native-community/cli-platform-ios@npm:16.0.0"
+  dependencies:
+    "@react-native-community/cli-platform-apple": 16.0.0
+  checksum: e2cb1bea85835e4d7fb872a96dde42edba09a09d9af745d32f38981877cc2d465a709e748f314053a87e27e7e8016a13398fd3612fc7709c243993f7d85e317b
   languageName: node
   linkType: hard
 
@@ -2630,6 +2664,25 @@ __metadata:
     shell-quote: ^1.7.3
     sudo-prompt: ^9.0.0
   checksum: c4b9a4b5824ac4a58131ece2dbef264506c879e61c5b031410a2c9e88fa5dbb3fa2ebf1b7551704826bb55cfb21c8dcd8b20875e7194e2842b4aa492b0a80b70
+  languageName: node
+  linkType: hard
+
+"@react-native-community/cli-tools@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@react-native-community/cli-tools@npm:16.0.0"
+  dependencies:
+    appdirsjs: ^1.2.4
+    chalk: ^4.1.2
+    execa: ^5.0.0
+    find-up: ^5.0.0
+    mime: ^2.4.1
+    open: ^6.2.0
+    ora: ^5.4.1
+    prompts: ^2.4.2
+    semver: ^7.5.2
+    shell-quote: ^1.7.3
+    sudo-prompt: ^9.0.0
+  checksum: bdca7108e154993dc0ea01da86a035e12ac0f9870d1c0453b01cf29b45ba3d3162fb1e1356feb24f0621f5fb78c3eb701e00346501effcc0ad36a58cf2212156
   languageName: node
   linkType: hard
 
@@ -10616,7 +10669,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@react-native-community/cli": 15.0.0
     "@react-native-community/cli-platform-android": 15.0.0
-    "@react-native-community/cli-platform-ios": 15.0.0
+    "@react-native-community/cli-platform-ios": 16.0.0
     "@react-native/babel-preset": 0.76.1
     "@react-native/metro-config": 0.76.1
     "@react-native/typescript-config": 0.76.1
