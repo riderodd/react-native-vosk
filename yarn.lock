@@ -2513,6 +2513,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-config-android@npm:15.1.3":
+  version: 15.1.3
+  resolution: "@react-native-community/cli-config-android@npm:15.1.3"
+  dependencies:
+    "@react-native-community/cli-tools": 15.1.3
+    chalk: ^4.1.2
+    fast-glob: ^3.3.2
+    fast-xml-parser: ^4.4.1
+  checksum: 07c207c5b9d9f21240c40c771a8761709c6f62e2d01272ca83d1649c728569e5447c172b0ef8868f1ba188217591fe63b731578cc2cec8b3c8705d4056e03186
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-config@npm:15.0.0":
   version: 15.0.0
   resolution: "@react-native-community/cli-config@npm:15.0.0"
@@ -2574,6 +2586,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-platform-android@npm:15.1.3":
+  version: 15.1.3
+  resolution: "@react-native-community/cli-platform-android@npm:15.1.3"
+  dependencies:
+    "@react-native-community/cli-config-android": 15.1.3
+    "@react-native-community/cli-tools": 15.1.3
+    chalk: ^4.1.2
+    execa: ^5.0.0
+    logkitty: ^0.7.1
+  checksum: 5fd57035dfc3a07f0bab42acb816fd2fbdb81a5aac21fc5f6c2b389611ffac571a99deb99e36858771c0480087e02b30a8a584e69fcba5ad5b5a8b241aa3d886
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-platform-apple@npm:15.0.0":
   version: 15.0.0
   resolution: "@react-native-community/cli-platform-apple@npm:15.0.0"
@@ -2630,6 +2655,25 @@ __metadata:
     shell-quote: ^1.7.3
     sudo-prompt: ^9.0.0
   checksum: c4b9a4b5824ac4a58131ece2dbef264506c879e61c5b031410a2c9e88fa5dbb3fa2ebf1b7551704826bb55cfb21c8dcd8b20875e7194e2842b4aa492b0a80b70
+  languageName: node
+  linkType: hard
+
+"@react-native-community/cli-tools@npm:15.1.3":
+  version: 15.1.3
+  resolution: "@react-native-community/cli-tools@npm:15.1.3"
+  dependencies:
+    appdirsjs: ^1.2.4
+    chalk: ^4.1.2
+    execa: ^5.0.0
+    find-up: ^5.0.0
+    mime: ^2.4.1
+    open: ^6.2.0
+    ora: ^5.4.1
+    prompts: ^2.4.2
+    semver: ^7.5.2
+    shell-quote: ^1.7.3
+    sudo-prompt: ^9.0.0
+  checksum: f62997b7ed16df5beffc699c7556eebe0b27a63ac0b10dcf8af3e2875231183752e4a1a7e55e9d60f0b9cbfd7c3a2dd264eccc0e3430b81660538e27d5deffc8
   languageName: node
   linkType: hard
 
@@ -10615,7 +10659,7 @@ __metadata:
     "@babel/preset-env": ^7.25.3
     "@babel/runtime": ^7.25.0
     "@react-native-community/cli": 15.0.0
-    "@react-native-community/cli-platform-android": 15.0.0
+    "@react-native-community/cli-platform-android": 15.1.3
     "@react-native-community/cli-platform-ios": 15.0.0
     "@react-native/babel-preset": 0.76.1
     "@react-native/metro-config": 0.76.1
