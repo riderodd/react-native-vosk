@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import React
 
 // The representation of the JSON object returned by Vosk
 struct VoskResult: Codable {
@@ -78,31 +79,31 @@ class Vosk: RCTEventEmitter {
 
     /// React method to define allowed events
     @objc override func supportedEvents() -> [String]! {
-        return ["onError","onResult","onFinalResult","onPartialResult","onTimeout"];
+        return ["onError", "onResult", "onFinalResult", "onPartialResult", "onTimeout"]
     }
 
     /// Load a Vosk model
     @objc(loadModel:withResolver:withRejecter:)
-    func loadModel(name: String, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-        if (currentModel != nil) {
-            currentModel = nil; // deinit model
+    func loadModel(name: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
+        if currentModel != nil {
+            currentModel = nil // deinit model
         }
 
         // Load the model in a try catch block
         do {
             try currentModel = VoskModel(name: name)
-            resolve(true);
+            resolve(true)
         } catch {
-            reject(nil, nil, nil);
+            reject(nil, nil, nil)
         }
     }
 
     /// Start speech recognition
     @objc(start:withResolver:withRejecter:)
-    func start(rawOptions: [String : Any]?, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    func start(rawOptions: [String: Any]?, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
         let audioSession = AVAudioSession.sharedInstance()
 
-        var options : VoskStartOptions? = nil;
+        var options: VoskStartOptions? = nil
         do {
             options = (rawOptions != nil) ? try VoskStartOptions(dictionary: rawOptions!) : nil
         } catch {
@@ -110,43 +111,55 @@ class Vosk: RCTEventEmitter {
         }
 
         // if grammar is set in options, override the current grammar
-        var grammar: [String]? = nil
-        if (options?.grammar != nil && options?.grammar!.isEmpty == false) {
-            grammar = options?.grammar
+        var grammar: [String]?
+        if let grammarOptions = options?.grammar, !grammarOptions.isEmpty {
+            grammar = grammarOptions
         }
 
         // if timeout is set in options, handle it
-        var timeout: Int? = nil
-        if (options?.timeout != nil) {
-            timeout = options?.timeout
+        var timeout: Int?
+        if let timeoutOptions = options?.timeout {
+            timeout = timeoutOptions
         }
 
         do {
             // Ask the user for permission to use the mic if required then start the engine.
-            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            try audioSession.setCategory(.record, mode: .measurement, options: [])
+            try audioSession.setActive(true)
 
-            if (grammar != nil && grammar!.isEmpty == false) {
-                let jsonGrammar = try! JSONEncoder().encode(grammar);
-                recognizer = vosk_recognizer_new_grm(currentModel!.model, Float(formatInput.sampleRate), String(data: jsonGrammar, encoding: .utf8))
-            } else {
-                recognizer = vosk_recognizer_new(currentModel!.model, Float(formatInput.sampleRate))
+            formatInput = inputNode.inputFormat(forBus: 0)
+            let sampleRate = formatInput.sampleRate.isFinite && formatInput.sampleRate > 0 ? formatInput.sampleRate : 16000
+            let channelCount = formatInput.channelCount > 0 ? formatInput.channelCount : 1
+
+            let formatPcm = AVAudioFormat(commonFormat: .pcmFormatInt16,
+                                          sampleRate: sampleRate,
+                                          channels: UInt32(channelCount),
+                                          interleaved: true)
+
+            guard let formatPcm = formatPcm else {
+                reject("start", "Unable to create audio format", nil)
+                return
             }
 
-            let formatPcm = AVAudioFormat.init(commonFormat: AVAudioCommonFormat.pcmFormatInt16, sampleRate: formatInput.sampleRate, channels: 1, interleaved: true)
+            if let grammar = grammar, !grammar.isEmpty {
+                let jsonGrammar = try! JSONEncoder().encode(grammar)
+                recognizer = vosk_recognizer_new_grm(currentModel!.model, Float(sampleRate), String(data: jsonGrammar, encoding: .utf8))
+            } else {
+                recognizer = vosk_recognizer_new(currentModel!.model, Float(sampleRate))
+            }
 
             inputNode.installTap(onBus: 0,
-                                 bufferSize: UInt32(formatInput.sampleRate / 10),
+                                 bufferSize: UInt32(sampleRate / 10),
                                  format: formatPcm) { buffer, time in
                 self.processingQueue.async {
                     let res = self.recognizeData(buffer: buffer)
                     DispatchQueue.main.async {
                         let parsedResult = try! JSONDecoder().decode(VoskResult.self, from: res.result!.data(using: .utf8)!)
-                        if (res.completed && self.hasListener && res.result != nil) {
+                        if res.completed && self.hasListener && res.result != nil {
                             self.sendEvent(withName: "onResult", body: parsedResult.text!)
-                        } else if (!res.completed && self.hasListener && res.result != nil) {
+                        } else if !res.completed && self.hasListener && res.result != nil {
                             // check if partial result is different from last one
-                            if (self.lastRecognizedResult == nil || self.lastRecognizedResult!.partial != parsedResult.partial && !parsedResult.partial!.isEmpty) {
+                            if self.lastRecognizedResult == nil || self.lastRecognizedResult!.partial != parsedResult.partial && !parsedResult.partial!.isEmpty {
                                 self.sendEvent(withName: "onPartialResult", body: parsedResult.partial)
                             }
                         }
@@ -164,10 +177,10 @@ class Vosk: RCTEventEmitter {
             }
 
             // and manage timeout if set in options
-            if (timeout != nil) {
+            if let timeout = timeout {
                 // Run timer on main thread
                 DispatchQueue.main.async {
-                    self.timeoutTimer = Timer.scheduledTimer(withTimeInterval: Double(timeout!) / 1000, repeats: false) {_ in
+                    self.timeoutTimer = Timer.scheduledTimer(withTimeInterval: Double(timeout) / 1000, repeats: false) { _ in
                         self.processingQueue.async {
                             // and exit on the process queue
                             self.stopInternal(withoutEvents: true)
@@ -177,23 +190,23 @@ class Vosk: RCTEventEmitter {
                 }
             }
 
-            resolve("Recognizer successfully started");
+            resolve("Recognizer successfully started")
         } catch {
-            if (hasListener) {
+            if hasListener {
                 sendEvent(withName: "onError", body: "Unable to start AVAudioEngine " + error.localizedDescription)
             } else {
                 debugPrint("Unable to start AVAudioEngine " + error.localizedDescription)
             }
-            vosk_recognizer_free(recognizer);
-            reject("start", error.localizedDescription, error);
+            vosk_recognizer_free(recognizer)
+            reject("start", error.localizedDescription, error)
         }
     }
 
     /// Unload speech recognition and model
     @objc(unload) func unload() -> Void {
         stopInternal(withoutEvents: false)
-        if (currentModel != nil) {
-            currentModel = nil; // deinit model
+        if currentModel != nil {
+            currentModel = nil // deinit model
         }
     }
 
@@ -206,25 +219,34 @@ class Vosk: RCTEventEmitter {
     /// Do internal cleanup on stop recognition
     func stopInternal(withoutEvents: Bool) {
         inputNode.removeTap(onBus: 0)
-        if (audioEngine.isRunning) {
+        if audioEngine.isRunning {
             audioEngine.stop()
-            if (hasListener && !withoutEvents) {
-                sendEvent(withName: "onFinalResult", body: lastRecognizedResult!.partial)
+            if hasListener && !withoutEvents {
+                sendEvent(withName: "onFinalResult", body: lastRecognizedResult?.partial)
             }
             lastRecognizedResult = nil
         }
-        if (recognizer != nil) {
-            vosk_recognizer_free(recognizer);
+        if recognizer != nil {
+            vosk_recognizer_free(recognizer)
             recognizer = nil
         }
-        if (timeoutTimer != nil) {
+        if timeoutTimer != nil {
             timeoutTimer?.invalidate()
             timeoutTimer = nil
+        }
+
+        // Restore AVAudioSession to default mode
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.playback, mode: .default, options: [])
+            try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Error restoring AVAudioSession: \(error)")
         }
     }
 
     /// Process the audio buffer and do recognition with Vosk
-    func recognizeData(buffer : AVAudioPCMBuffer) -> (result: String?, completed: Bool) {
+    func recognizeData(buffer: AVAudioPCMBuffer) -> (result: String?, completed: Bool) {
         let dataLen = Int(buffer.frameLength * 2)
         let channels = UnsafeBufferPointer(start: buffer.int16ChannelData, count: 1)
         let endOfSpeech = channels[0].withMemoryRebound(to: Int8.self, capacity: dataLen) {
@@ -233,6 +255,6 @@ class Vosk: RCTEventEmitter {
         let res = endOfSpeech == 1 ?
         vosk_recognizer_result(recognizer) :
         vosk_recognizer_partial_result(recognizer)
-        return (String(validatingUTF8: res!), endOfSpeech == 1);
+        return (String(validatingUTF8: res!), endOfSpeech == 1)
     }
 }
