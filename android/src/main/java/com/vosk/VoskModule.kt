@@ -162,38 +162,42 @@ override fun onResult(hypothesis: String) {
   /**
    * Transcribe a 16 kHz mono WAV file from disk.
    * @param wavPath absolute path to a .wav file (PCM 16-bit LE, 16 kHz, mono)
-   * @param promise resolves to native Vosk JSON string
+   * @param promise resolves to the Vosk JSON string
    */
   @ReactMethod
-  public void transcribeFile(String wavPath, Promise promise) {
+  fun transcribeFile(wavPath: String, promise: Promise) {
+    // Ensure model is loaded
     if (model == null) {
-      promise.reject("NO_MODEL", "Call loadModel() first");
-      return;
+      promise.reject("NO_MODEL", "Call loadModel() first")
+      return
     }
-    FileInputStream input = null;
-    Recognizer fileRec = null;
+
+    var recognizer: Recognizer? = null
+    var input: FileInputStream? = null
     try {
-      // new recognizer on the same model + sampleRate
-      fileRec = new Recognizer(model, sampleRate);
+      // Create a new recognizer on the same model & sample rate
+      recognizer = Recognizer(model, sampleRate)
 
-      input = new FileInputStream(wavPath);
-      byte[] buffer = new byte[4096];
-      int bytesRead;
+      // Open the WAV file
+      input = FileInputStream(wavPath)
+      val buffer = ByteArray(4096)
+      var bytesRead: Int
 
-      // read & feed until EOF
-      while ((bytesRead = input.read(buffer)) > 0) {
-        fileRec.acceptWaveForm(buffer, bytesRead);
+      // Read & feed each chunk
+      while (input.read(buffer).also { bytesRead = it } > 0) {
+        recognizer.acceptWaveForm(buffer, bytesRead)
       }
 
-      // get final JSON result
-      String result = fileRec.getFinalResult();
-      promise.resolve(result);
+      // Pull out the final result JSON
+      val resultJson = recognizer.finalResult
+      promise.resolve(resultJson)
 
-    } catch (Exception e) {
-      promise.reject("TRANSCRIBE_FAIL", e);
+    } catch (e: Exception) {
+      promise.reject("TRANSCRIBE_FAIL", e)
     } finally {
-      try { if (input != null) input.close(); } catch (Exception ignored) {}
-      if (fileRec != null) fileRec.close();
+      // Clean up
+      try { input?.close() } catch (_: IOException) { }
+      recognizer?.close()
     }
   }
 
