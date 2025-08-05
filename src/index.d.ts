@@ -16,6 +16,8 @@ interface VoskInterface extends TurboModule {
   loadModel: (path: string) => Promise<void>;
   unload: () => void;
 
+  transcribeFile(wavPath: string): Promise<string>;
+
   start: (options?: VoskOptions) => Promise<void>;
   stop: () => void;
 

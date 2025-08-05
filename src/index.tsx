@@ -42,6 +42,14 @@ export default class Vosk {
   loadModel = (path: string) => VoskModule.loadModel(path);
 
   /**
+   * Transcribe a 16 kHz mono WAV file you’ve already extracted.
+   * @param wavPath absolute filesystem path to your .wav
+   * @returns Promise<string>  the Vosk JSON result
+   */
+  transcribeFile = (wavPath: string): Promise<string> =>
+    VoskModule.transcribeFile(wavPath);
+
+  /**
    * Asks for recording permissions then starts the recognizer.
    *
    * @param options - Optional settings for the recognizer.
