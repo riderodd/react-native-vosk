@@ -14,6 +14,7 @@ import org.vosk.android.RecognitionListener
 import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import java.io.IOException
+import java.io.FileInputStream
 
 class VoskModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext), RecognitionListener {
@@ -155,6 +156,48 @@ override fun onResult(hypothesis: String) {
         cleanModel()
         promise.reject(e)
       }
+    }
+  }
+
+  /**
+   * Transcribe a 16 kHz mono WAV file from disk.
+   * @param wavPath absolute path to a .wav file (PCM 16-bit LE, 16 kHz, mono)
+   * @param promise resolves to the Vosk JSON string
+   */
+  @ReactMethod
+  fun transcribeFile(wavPath: String, promise: Promise) {
+    // Ensure model is loaded
+    if (model == null) {
+      promise.reject("NO_MODEL", "Call loadModel() first")
+      return
+    }
+
+    var recognizer: Recognizer? = null
+    var input: FileInputStream? = null
+    try {
+      // Create a new recognizer on the same model & sample rate
+      recognizer = Recognizer(model, sampleRate)
+
+      // Open the WAV file
+      input = FileInputStream(wavPath)
+      val buffer = ByteArray(4096)
+      var bytesRead: Int
+
+      // Read & feed each chunk
+      while (input.read(buffer).also { bytesRead = it } > 0) {
+        recognizer.acceptWaveForm(buffer, bytesRead)
+      }
+
+      // Pull out the final result JSON
+      val resultJson = recognizer.finalResult
+      promise.resolve(resultJson)
+
+    } catch (e: Exception) {
+      promise.reject("TRANSCRIBE_FAIL", e)
+    } finally {
+      // Clean up
+      try { input?.close() } catch (_: IOException) { }
+      recognizer?.close()
     }
   }
 
