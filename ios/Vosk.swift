@@ -35,10 +35,8 @@ class Vosk: RCTEventEmitter {
     var recognizer : OpaquePointer?
     /// The audioEngine used to pipe microphone to recognizer
     let audioEngine = AVAudioEngine()
-    /// The audioEngine input
-    var inputNode: AVAudioInputNode!
-    /// The microphone input format
-    var formatInput: AVAudioFormat!
+    /// The mixer node for controlling input volume
+    var inputMixerNode = AVAudioMixerNode()
     /// A queue to process datas
     var processingQueue: DispatchQueue!
     /// Keep the last processed result here
@@ -56,10 +54,6 @@ class Vosk: RCTEventEmitter {
         super.init()
         // Init the processing queue
         processingQueue = DispatchQueue(label: "recognizerQueue")
-        // Create a new audio engine.
-        inputNode = audioEngine.inputNode
-        // Get the microphone default input format
-        formatInput = inputNode.inputFormat(forBus: 0)
     }
 
     deinit {
@@ -127,7 +121,7 @@ class Vosk: RCTEventEmitter {
             try audioSession.setCategory(.record, mode: .measurement, options: [])
             try audioSession.setActive(true)
 
-            formatInput = inputNode.inputFormat(forBus: 0)
+            let formatInput = audioEngine.inputNode.inputFormat(forBus: 0)
             let sampleRate = formatInput.sampleRate.isFinite && formatInput.sampleRate > 0 ? formatInput.sampleRate : 16000
             let channelCount = formatInput.channelCount > 0 ? formatInput.channelCount : 1
 
@@ -148,7 +142,12 @@ class Vosk: RCTEventEmitter {
                 recognizer = vosk_recognizer_new(currentModel!.model, Float(sampleRate))
             }
 
-            inputNode.installTap(onBus: 0,
+            // Connect the mixer to the inputNode
+            audioEngine.attach(inputMixerNode)
+            audioEngine.connect(audioEngine.inputNode, to: inputMixerNode, format: formatInput)
+            audioEngine.connect(inputMixerNode, to: audioEngine.mainMixerNode, format: formatPcm)
+
+            inputMixerNode.installTap(onBus: 0,
                                  bufferSize: UInt32(sampleRate / 10),
                                  format: formatPcm) { buffer, time in
                 self.processingQueue.async {
@@ -202,6 +201,16 @@ class Vosk: RCTEventEmitter {
         }
     }
 
+    /// Mute the inputMixerNode
+    @objc(mute) func mute() -> Void {
+        inputMixerNode.outputVolume = 0.0
+    }
+
+    /// Unmute the inputMixerNode
+    @objc(unmute) func unmute() -> Void {
+        inputMixerNode.outputVolume = 1.0
+    }
+
     /// Unload speech recognition and model
     @objc(unload) func unload() -> Void {
         stopInternal(withoutEvents: false)
@@ -218,7 +227,8 @@ class Vosk: RCTEventEmitter {
 
     /// Do internal cleanup on stop recognition
     func stopInternal(withoutEvents: Bool) {
-        inputNode.removeTap(onBus: 0)
+        inputMixerNode.removeTap(onBus: 0)
+
         if audioEngine.isRunning {
             audioEngine.stop()
             if hasListener && !withoutEvents {

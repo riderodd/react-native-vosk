@@ -12,7 +12,6 @@ const LINKING_ERROR =
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
-
 const VoskModule: VoskInterface = NativeModules.Vosk
   ? NativeModules.Vosk
   : new Proxy(
@@ -62,6 +61,16 @@ export default class Vosk {
    * Stops the recognizer. Listener should receive final result if there is any.
    */
   stop = () => VoskModule.stop();
+
+  /**
+   * Mutes the input node
+   */
+  mute = () => VoskModule.mute();
+
+  /**
+   * Unmutes the input node
+   */
+  unmute = () => VoskModule.unmute();
 
   /**
    * Unloads the model, also stops the recognizer.

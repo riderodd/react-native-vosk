@@ -19,6 +19,9 @@ interface VoskInterface extends TurboModule {
   start: (options?: VoskOptions) => Promise<void>;
   stop: () => void;
 
+  mute: () => void;
+  unmute: () => void;
+
   addListener: (eventType: string) => void;
   removeListeners: (count: number) => void;
 }
