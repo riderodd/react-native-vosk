@@ -158,6 +158,16 @@ override fun onResult(hypothesis: String) {
     }
   }
 
+  @ReactMethod
+  fun mute() {
+    speechService?.setPause(true)
+  }
+
+  @ReactMethod
+  fun unmute() {
+    speechService?.setPause(false)
+  }
+
   private fun cleanRecognizer() {
     if (speechService != null) {
       speechService!!.stop()
