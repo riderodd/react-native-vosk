@@ -142,6 +142,8 @@ vosk
 | `loadModel` | `path: string`                   | `Promise<void>` | Loads the voice model used for recognition, it is required before using start method. |
 | `start`     | `options: VoskOptions` or `none` | `Promise<void>` | Starts the recognizer, an `onResult()` event will be fired.                           |
 | `stop`      | `none`                           | `none`          | Stops the recognizer. Listener should receive final result if there is any.           |
+| `mute`      | `none`                           | `none`          | Stops audio input from flowing to the recognizer.                                     |
+| `unmute`    | `none`                           | `none`          | Resumes audio input flowing to the recognizer.                                        |
 | `unload`    | `none`                           | `none`          | Unloads the model, also stops the recognizer.                                         |
 
 ### Types
