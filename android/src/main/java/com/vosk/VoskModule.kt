@@ -166,23 +166,23 @@ override fun onResult(hypothesis: String) {
   private fun cleanRecognizer() {
     synchronized(this) {
       if (isStopping) {
-        return;
+        return
       }
-      isStopping = true;
+      isStopping = true
       try {
-        if (speechService != null) {
-          speechService?.stop();
-          speechService?.shutdown();
-          speechService = null;
+        speechService?.let {
+          it.stop()
+          it.shutdown()
+          speechService = null
         }
-        if (recognizer != null) {
-          recognizer?.close();
-          recognizer = null;
+        recognizer?.let {
+          it.close()
+          recognizer = null
         }
       } catch (e: Exception) {
         Log.w(NAME, "Error during cleanup in cleanRecognizer", e)
       } finally {
-        isStopping = false;
+        isStopping = false
       }
     }
   }
@@ -190,9 +190,9 @@ override fun onResult(hypothesis: String) {
   private fun cleanModel() {
     synchronized(this) {
       try {
-        if (model != null) {
-          model?.close();
-          model = null;
+        model?.let {
+          it.close()
+          model = null
         }
       } catch (e: Exception) {
         Log.w(NAME, "Error during model cleanup", e)
