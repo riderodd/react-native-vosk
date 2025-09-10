@@ -32,7 +32,7 @@ _Important_: The model folder must be directly in the `assets` folder, not in a 
   model-de-de/
 ```
 
-You can import as many models as you want. If your model folder does not starts with `model-`, you won't be able to load it. The model folder must contains all the files provided in the zip you downloaded from Vosk website. If you don't have the `assets` folder in your project, just create it.
+You can import as many models as you want. If your model folder does not start with `model-`, you won't be able to load it. The model folder must contain all the files provided in the zip you downloaded from Vosk website. If you don't have the `assets` folder in your project, just create it.
 
 If you have any trouble, double check you are following the naming convention, or check the example project provided with the library : [example](https://github.com/riderodd/react-native-vosk/tree/main/example)
 

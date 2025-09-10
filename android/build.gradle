@@ -98,7 +98,7 @@ repositories {
 // Generate UUIDs for each models contained in app/assets/model*
 tasks.register('genUUID') {
   doLast {
-    // Got one step parent to rootDir
+    // Get the parent directory of rootDir
     def androidAppDir = rootDir.toPath().parent.toFile()
     def srcDir = file("$androidAppDir/assets")
     println "Searching for model directories in: $srcDir"
@@ -112,7 +112,7 @@ tasks.register('genUUID') {
         mkdir androidOutDir
         def outFile = file("$androidOutDir/uuid")
         println "Generating UUID for model ${fileDetails.relativePath} in $outFile"
-        // Copy all files from outDir to androidOutDir  (Important: keep folder structure)
+        // Copy all files from outDir to androidOutDir (Important: keep folder structure)
         copy {
           from outDir
           into androidOutDir
