@@ -11,21 +11,23 @@ This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/f
 - The library package in the root directory.
 - An example app in the `example/` directory.
 
-To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
+To get started with the project, make sure you have the correct version of [Node.js](https://nodejs.org/) installed. See the [`.nvmrc`](./.nvmrc) file for the version used in this project.
+
+Run `yarn` in the root directory to install the required dependencies for each package:
 
 ```sh
 yarn
 ```
 
-> Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development.
+> Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development without manually migrating.
 
 The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
 
 It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
 
-If you want to use Android Studio or XCode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/VoskExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-vosk`.
+If you want to use Android Studio or XCode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/Vosk2Example.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-vosk2`.
 
-To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `react-native-vosk` under `Android`.
+To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `react-native-vosk2` under `Android`.
 
 You can use various commands from the root directory to work with the project.
 
@@ -46,6 +48,14 @@ To run the example app on iOS:
 ```sh
 yarn example ios
 ```
+
+To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
+
+```sh
+Running "Vosk2Example" with {"fabric":true,"initialProps":{"concurrentRoot":true},"rootTag":1}
+```
+
+Note the `"fabric":true` and `"concurrentRoot":true` properties.
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
 
@@ -73,7 +83,7 @@ We follow the [conventional commits specification](https://www.conventionalcommi
 - `fix`: bug fixes, e.g. fix crash due to deprecated method.
 - `feat`: new features, e.g. add new method to the module.
 - `refactor`: code refactor, e.g. migrate from class components to hooks.
-- `docs`: changes into documentation, e.g. add usage example for the module..
+- `docs`: changes into documentation, e.g. add usage example for the module.
 - `test`: adding or updating tests, e.g. add integration tests using detox.
 - `chore`: tooling changes, e.g. change CI config.
 

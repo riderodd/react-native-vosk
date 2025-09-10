@@ -1,23 +1,24 @@
 package com.vosk
 
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
+import android.util.Log
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import java.io.IOException
 import org.json.JSONObject
 import org.vosk.Model
 import org.vosk.Recognizer
 import org.vosk.android.RecognitionListener
 import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
-import java.io.IOException
-import android.util.Log
+import com.vosk.NativeVoskSpec
 
+@ReactModule(name = VoskModule.NAME)
 class VoskModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext), RecognitionListener {
+        NativeVoskSpec(reactContext), RecognitionListener {
 
   private var model: Model? = null
   private var speechService: SpeechService? = null
@@ -30,13 +31,13 @@ class VoskModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-override fun onResult(hypothesis: String) {
+  override fun onResult(hypothesis: String) {
     // Get text data from string object
     val text = parseHypothesis(hypothesis)
 
     // Send event if data found
     if (!text.isNullOrEmpty()) {
-      sendEvent("onResult", text)
+      emitOnResult(text)
     }
   }
 
@@ -46,7 +47,7 @@ override fun onResult(hypothesis: String) {
 
     // Send event if data found
     if (!text.isNullOrEmpty()) {
-      sendEvent("onFinalResult", text)
+      emitOnFinalResult(text)
     }
   }
 
@@ -56,17 +57,17 @@ override fun onResult(hypothesis: String) {
 
     // Send event if data found
     if (!text.isNullOrEmpty()) {
-      sendEvent("onPartialResult", text)
+      emitOnPartialResult(text)
     }
   }
 
   override fun onError(e: Exception) {
-    sendEvent("onError", e.toString())
+    emitOnError(e.toString())
   }
 
   override fun onTimeout() {
     cleanRecognizer()
-    sendEvent("onTimeout")
+    emitOnTimeout()
   }
 
   /**
@@ -83,15 +84,11 @@ override fun onResult(hypothesis: String) {
     }
   }
 
-  /**
-   * Sends event to react native with associated data
-   */
+  /** Sends event to react native with associated data */
   private fun sendEvent(eventName: String, data: String? = null) {
     // Send event
-    context?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit(
-      eventName,
-      data
-    )
+    context?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            ?.emit(eventName, data)
   }
 
   /**
@@ -99,16 +96,17 @@ override fun onResult(hypothesis: String) {
    * @return the array of string(s) as a single string
    */
   private fun makeGrammar(grammarArray: ReadableArray): String {
-    return grammarArray.toArrayList().joinToString(
-      prefix = "[",
-      separator = ", ",
-      transform = {"\"" + it + "\""},
-      postfix = "]"
-    )
+    return grammarArray
+            .toArrayList()
+            .joinToString(
+                    prefix = "[",
+                    separator = ", ",
+                    transform = { "\"" + it + "\"" },
+                    postfix = "]"
+            )
   }
 
-  @ReactMethod
-  fun loadModel(path: String, promise: Promise) {
+  override fun loadModel(path: String, promise: Promise) {
     cleanModel()
     try {
       this.model = Model(path)
@@ -117,11 +115,14 @@ override fun onResult(hypothesis: String) {
       println("Model directory does not exist at path: " + path)
 
       // Load model from main app bundle
-      StorageService.unpack(context, path, "models",
-        { model: Model? ->
-          this.model = model
-          promise.resolve("Model successfully loaded")
-        }
+      StorageService.unpack(
+              context,
+              path,
+              "models",
+              { model: Model? ->
+                this.model = model
+                promise.resolve("Model successfully loaded")
+              }
       ) { e: IOException ->
         this.model = null
         promise.reject(e)
@@ -129,8 +130,7 @@ override fun onResult(hypothesis: String) {
     }
   }
 
-  @ReactMethod
-  fun start(options: ReadableMap? = null, promise: Promise) {
+  override fun start(options: ReadableMap?, promise: Promise) {
     if (model == null) {
       promise.reject(IOException("Model is not loaded yet"))
       return
@@ -140,17 +140,19 @@ override fun onResult(hypothesis: String) {
       return
     }
     try {
-      recognizer = if (options != null && options.hasKey("grammar") && !options.isNull("grammar")) {
-        Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
-      } else {
-        Recognizer(model, sampleRate)
-      }
+      recognizer =
+              if (options != null && options.hasKey("grammar") && !options.isNull("grammar")) {
+                Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
+              } else {
+                Recognizer(model, sampleRate)
+              }
       speechService = SpeechService(recognizer, sampleRate)
-      val started = if (options != null && options.hasKey("timeout") && !options.isNull("timeout")) {
-        speechService?.startListening(this, options.getInt("timeout")) ?: false
-      } else {
-        speechService!!.startListening(this)
-      }
+      val started =
+              if (options != null && options.hasKey("timeout") && !options.isNull("timeout")) {
+                speechService?.startListening(this, options.getInt("timeout")) ?: false
+              } else {
+                speechService!!.startListening(this)
+              }
       if (started) {
         promise.resolve("Recognizer successfully started")
       } else {
@@ -200,24 +202,20 @@ override fun onResult(hypothesis: String) {
     }
   }
 
-  @ReactMethod
-  fun stop() {
+  override fun stop() {
     cleanRecognizer()
   }
 
-  @ReactMethod
-  fun unload() {
+  override fun unload() {
     cleanRecognizer()
     cleanModel()
   }
 
-  @ReactMethod
-  fun addListener(type: String?) {
+  override fun addListener(type: String?) {
     // Keep: Required for RN built in Event Emitter Calls.
   }
 
-  @ReactMethod
-  fun removeListeners(type: Int?) {
+  override fun removeListeners(count: Double): Unit {
     // Keep: Required for RN built in Event Emitter Calls.
   }
 
