@@ -14,6 +14,7 @@ import org.vosk.android.RecognitionListener
 import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import java.io.IOException
+import android.util.Log
 
 class VoskModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext), RecognitionListener {
@@ -144,23 +145,21 @@ override fun onResult(hypothesis: String) {
       } else {
         Recognizer(model, sampleRate)
       }
-      speechService = SpeechService(recognizer, sampleRate);
+      speechService = SpeechService(recognizer, sampleRate)
       val started = if (options != null && options.hasKey("timeout") && !options.isNull("timeout")) {
         speechService?.startListening(this, options.getInt("timeout")) ?: false
-      } else {
-        speechService!!.startListening(this, options.getInt("timeout"))
       } else {
         speechService!!.startListening(this)
       }
       if (started) {
-        promise.resolve("Recognizer successfully started");
+        promise.resolve("Recognizer successfully started")
       } else {
-        cleanRecognizer();
-        promise.reject(IOException("Recognizer couldn't be started"));
+        cleanRecognizer()
+        promise.reject(IOException("Recognizer couldn't be started"))
       }
     } catch (e: IOException) {
-      cleanRecognizer();
-      promise.reject(e);
+      cleanRecognizer()
+      promise.reject(e)
     }
   }
 
@@ -181,7 +180,7 @@ override fun onResult(hypothesis: String) {
           recognizer = null;
         }
       } catch (e: Exception) {
-        Log.w(TAG, "Error during cleanup in cleanRecognizer", e)
+        Log.w(NAME, "Error during cleanup in cleanRecognizer", e)
       } finally {
         isStopping = false;
       }
