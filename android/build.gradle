@@ -80,6 +80,14 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
+
+  sourceSets {
+    main {
+      assets {
+        srcDirs "$buildDir/generated/assets"
+      }
+    }
+  }
 }
 
 repositories {
@@ -87,15 +95,28 @@ repositories {
   google()
 }
 
-// Generate UUIDs for each models contained in android/src/main/assets/
+// Generate UUIDs for each models contained in app/assets/model*
 tasks.register('genUUID') {
   doLast {
-    def searchDir = rootDir.toPath()
-    fileTree(dir: "$searchDir/app/src/main/assets", exclude: ['*/*']).visit { fileDetails ->
+    // Get the parent directory of rootDir
+    def androidAppDir = rootDir.toPath().parent.toFile()
+    def srcDir = file("$androidAppDir/assets")
+    println "Searching for model directories in: $srcDir"
+    fileTree(dir: "$srcDir", exclude: ['*/*']).visit { fileDetails ->
       if (fileDetails.directory && fileDetails.file.name.startsWith("model")) {
-        def outDir = file("$searchDir/app/src/main/assets/$fileDetails.relativePath")
-        mkdir outDir
-        def outFile = file("$outDir/uuid")
+        def outDir = file("$srcDir/$fileDetails.relativePath")
+
+        println "Processing model directory: $outDir"
+
+        def androidOutDir = file("$buildDir/generated/assets/$fileDetails.relativePath")
+        mkdir androidOutDir
+        def outFile = file("$androidOutDir/uuid")
+        println "Generating UUID for model ${fileDetails.relativePath} in $outFile"
+        // Copy all files from outDir to androidOutDir (Important: keep folder structure)
+        copy {
+          from outDir
+          into androidOutDir
+        }
         outFile.text = UUID.randomUUID().toString()
       }
     }
@@ -113,6 +134,6 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   // From node_modules
   implementation 'net.java.dev.jna:jna:5.13.0@aar'
-  implementation 'com.alphacephei:vosk-android:0.3.47@aar'
+  implementation 'com.alphacephei:vosk-android:0.3.70@aar'
 }
 

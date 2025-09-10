@@ -22,19 +22,21 @@ To download and load a model as part of an app's Main Bundle, just do as follows
 
 ### Android
 
-In Android Studio, open the project manager, right-click on your project folder and go to `New` > `Folder` > `Assets folder`.
+**Starting from version 1.0.0**, the model is not searched in the android project by default anymore.
 
-<a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_folder_creation.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_folder_creation.png" alt="Android Studio assets folder creation" width="200" /></a>
+In your root project folder, create a folder `assets` (next to the `src` one) and put your model folder in it. The path should be like this: `assets/model-en-en` if you downloaded the english model for example.
 
-Then put the model folder inside the assets folder created. For our tests with the react-native-test-app module, we used the value `../../../../src/main/assets` to let the asset folder live outside our node_modules. Adapt the path to your own needs.
+_Important_: The model folder must be directly in the `assets` folder, not in a subfolder. If you have multiple models, you can put them all in the `assets` folder like this:
 
-<a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_path.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_assets_path.png" alt="Android Studio assets folder path" width="200" /></a>
+```assets/
+  model-en-en/
+  model-fr-fr/
+  model-de-de/
+```
 
-In your file tree it could be located in `android\app\src\main\assets`. So, if you downloaded the french model named `model-fr-fr`, you should access the model by going to `android\app\src\main\assets\model-fr-fr`. In Android studio, your project structure should be like that:
+You can import as many models as you want. If your model folder does not start with `model-`, you won't be able to load it. The model folder must contain all the files provided in the zip you downloaded from Vosk website. If you don't have the `assets` folder in your project, just create it.
 
-<a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_project_structure.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/android_studio_project_structure.png" alt="Android Studio assets folder path" width="200" /></a>
-
-You can import as many models as you want.
+If you have any trouble, double check you are following the naming convention, or check the example project provided with the library : [example](https://github.com/riderodd/react-native-vosk/tree/main/example)
 
 ### iOS
 
@@ -42,7 +44,7 @@ In XCode, click on your App on the projects pannel, then go to the `Build phases
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_add_files_to_folder.png" alt="XCode add files to project" width="200" /></a>
 
-Then navigate to your model folder. You can navigate to your Android assets folder as mentionned before, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it. Click on `Open`.
+Then navigate to your model folder. You can navigate to the assets folder you may have created for android, and chose your model here. It will avoid to have the model copied twice in your project. If you don't use the Android build, you can just put the model wherever you want, and select it. Click on `Open`.
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_chose_model_folder.png" alt="XCode chose model folder" width="200" /></a>
 
@@ -90,7 +92,7 @@ Note that `start()` method will ask for audio record permission.
 
 [See complete example...](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
 
-## Experimental Loading via Path
+## Loading via Path
 
 - Primarily intended for models that are not included in the app’s Main Bundle.
 
