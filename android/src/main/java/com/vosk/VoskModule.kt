@@ -194,7 +194,7 @@ override fun onResult(hypothesis: String) {
           model = null;
         }
       } catch (e: Exception) {
-
+        Log.w(NAME, "Error during model cleanup", e)
       }
     }
   }
