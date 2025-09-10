@@ -14,6 +14,7 @@ import org.vosk.android.RecognitionListener
 import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import java.io.IOException
+import android.util.Log
 
 class VoskModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext), RecognitionListener {
@@ -23,6 +24,7 @@ class VoskModule(reactContext: ReactApplicationContext) :
   private var context: ReactApplicationContext? = reactContext
   private var recognizer: Recognizer? = null
   private var sampleRate = 16000.0f
+  private var isStopping = false
 
   override fun getName(): String {
     return NAME
@@ -73,11 +75,11 @@ override fun onResult(hypothesis: String) {
    */
   private fun parseHypothesis(hypothesis: String, key: String = "text"): String? {
     // Hypothesis is in the form: '{[key]: "recognized text"}'
-    return try {
+    try {
       val res = JSONObject(hypothesis)
-      res.getString(key)
+      return res.getString(key)
     } catch (tx: Throwable) {
-      null
+      return null
     }
   }
 
@@ -131,49 +133,70 @@ override fun onResult(hypothesis: String) {
   fun start(options: ReadableMap? = null, promise: Promise) {
     if (model == null) {
       promise.reject(IOException("Model is not loaded yet"))
+      return
     }
-    else if (speechService != null) {
+    if (speechService != null) {
       promise.reject(IOException("Recognizer is already in use"))
-    } else {
-      try {
-        recognizer =
-          if (options != null && options.hasKey("grammar") && !options.isNull("grammar"))
-            Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
-          else
-            Recognizer(model, sampleRate)
-
-        speechService = SpeechService(recognizer, sampleRate)
-
-        return if (options != null && options.hasKey("timeout") && !options.isNull("timeout") && speechService!!.startListening(this, options.getInt("timeout")))
-          promise.resolve("Recognizer successfully started with timeout")
-        else if (speechService!!.startListening(this))
-          promise.resolve("Recognizer successfully started")
-        else
-          promise.reject(IOException("Recognizer couldn't be started"))
-
-      } catch (e: IOException) {
-        cleanModel()
-        promise.reject(e)
+      return
+    }
+    try {
+      recognizer = if (options != null && options.hasKey("grammar") && !options.isNull("grammar")) {
+        Recognizer(model, sampleRate, makeGrammar(options.getArray("grammar")!!))
+      } else {
+        Recognizer(model, sampleRate)
       }
+      speechService = SpeechService(recognizer, sampleRate)
+      val started = if (options != null && options.hasKey("timeout") && !options.isNull("timeout")) {
+        speechService?.startListening(this, options.getInt("timeout")) ?: false
+      } else {
+        speechService!!.startListening(this)
+      }
+      if (started) {
+        promise.resolve("Recognizer successfully started")
+      } else {
+        cleanRecognizer()
+        promise.reject(IOException("Recognizer couldn't be started"))
+      }
+    } catch (e: IOException) {
+      cleanRecognizer()
+      promise.reject(e)
     }
   }
 
   private fun cleanRecognizer() {
-    if (speechService != null) {
-      speechService!!.stop()
-      speechService!!.shutdown()
-      speechService = null
-    }
-    if (recognizer != null) {
-      recognizer!!.close()
-      recognizer = null
+    synchronized(this) {
+      if (isStopping) {
+        return
+      }
+      isStopping = true
+      try {
+        speechService?.let {
+          it.stop()
+          it.shutdown()
+          speechService = null
+        }
+        recognizer?.let {
+          it.close()
+          recognizer = null
+        }
+      } catch (e: Exception) {
+        Log.w(NAME, "Error during cleanup in cleanRecognizer", e)
+      } finally {
+        isStopping = false
+      }
     }
   }
 
   private fun cleanModel() {
-    if (this.model != null) {
-      this.model!!.close()
-      this.model = null
+    synchronized(this) {
+      try {
+        model?.let {
+          it.close()
+          model = null
+        }
+      } catch (e: Exception) {
+        Log.w(NAME, "Error during model cleanup", e)
+      }
     }
   }
 
