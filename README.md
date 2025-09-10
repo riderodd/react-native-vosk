@@ -22,6 +22,8 @@ To download and load a model as part of an app's Main Bundle, just do as follows
 
 ### Android
 
+**Starting from version 1.0.0**, the model is not searched in the android project by default anymore.
+
 In your root project folder, create a folder `assets` (next to the `src` one) and put your model folder in it. The path should be like this: `assets/model-en-en` if you downloaded the english model for example.
 
 _Important_: The model folder must be directly in the `assets` folder, not in a subfolder. If you have multiple models, you can put them all in the `assets` folder like this:
