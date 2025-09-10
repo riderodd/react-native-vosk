@@ -179,7 +179,7 @@ override fun onResult(hypothesis: String) {
           recognizer = null;
         }
       } catch (e: Exception) {
-
+        Log.w(TAG, "Error during cleanup in cleanRecognizer", e)
       } finally {
         isStopping = false;
       }
