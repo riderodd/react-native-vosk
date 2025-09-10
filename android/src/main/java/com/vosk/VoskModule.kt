@@ -148,7 +148,9 @@ override fun onResult(hypothesis: String) {
       val started = if (options != null && options.hasKey("timeout") && !options.isNull("timeout")) {
         speechService?.startListening(this, options.getInt("timeout")) ?: false
       } else {
-        speechService?.startListening(this) ?: false;
+        speechService!!.startListening(this, options.getInt("timeout"))
+      } else {
+        speechService!!.startListening(this)
       }
       if (started) {
         promise.resolve("Recognizer successfully started");
