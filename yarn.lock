@@ -11652,7 +11652,6 @@ __metadata:
     turbo: ^2.5.6
     typescript: ^5.9.2
   peerDependencies:
-    expo: "*"
     react: "*"
     react-native: "*"
   languageName: unknown
