@@ -1,26 +1,17 @@
 {
   "name": "react-native-vosk",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Speech recognition module for react native using Vosk library",
-  "main": "./lib/module/index.js",
-  "types": "./lib/typescript/src/index.d.ts",
-  "exports": {
-    ".": {
-      "source": "./src/index.tsx",
-      "types": "./lib/typescript/src/index.d.ts",
-      "default": "./lib/module/index.js"
-    },
-    "./plugin": {
-      "default": "./plugin/withVosk.js"
-    },
-    "./package.json": "./package.json"
-  },
+  "types": "lib/typescript/src/index.d.ts",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
+  "react-native": "src/index.ts",
   "files": [
     "src",
     "lib",
     "android",
     "ios",
-    "plugin",
+    "plugin/build",
     "cpp",
     "app.plugin.js",
     "*.podspec",
@@ -85,7 +76,7 @@
     "del-cli": "^6.0.0",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jest": "latest",
+    "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-prettier": "^5.5.4",
     "expo-module-scripts": "^5.0.7",
     "jest": "^29.7.0",
@@ -150,18 +141,9 @@
     "source": "src",
     "output": "lib",
     "targets": [
-      [
-        "module",
-        {
-          "esm": true
-        }
-      ],
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build.json"
-        }
-      ]
+      "module",
+      "commonjs",
+      "typescript"
     ]
   },
   "codegenConfig": {

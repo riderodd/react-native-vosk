@@ -15,7 +15,7 @@ export type VoskPluginProps = {
 };
 
 const withVosk: ConfigPlugin<VoskPluginProps | void> = (config, props) => {
-  const { models = [], iOSMicrophonePermission } = props as VoskPluginProps;
+  const { models = [], iOSMicrophonePermission } = props ?? {};
 
   // iOS: add microphone permission string
   if (iOSMicrophonePermission) {
