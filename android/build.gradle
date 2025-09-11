@@ -73,29 +73,60 @@ repositories {
   google()
 }
 
-// Generate UUIDs for each models contained in app/assets/model*
+// Generate UUIDs for each model directory.
+// Priority order:
+//  1. If Gradle property 'Vosk_models' is set (comma separated list of relative paths), use those.
+//  2. Otherwise fallback to scanning an adjacent app assets directory for model* folders.
 tasks.register('genUUID') {
   doLast {
-    // Get the parent directory of rootDir
+    def modelsProp = project.findProperty('Vosk_models')
+    if (modelsProp) {
+      println "[react-native-vosk] Using Vosk_models property: ${modelsProp}"
+      def modelPaths = modelsProp.split(',').collect { it.trim() }.findAll { it }
+      if (modelPaths.isEmpty()) {
+        println '[react-native-vosk] Vosk_models is empty, skipping.'
+        return
+      }
+      modelPaths.each { relPath ->
+        def candidates = [
+          file("${rootProject.projectDir}/${relPath}"),
+          file("${rootProject.projectDir.parentFile}/${relPath}")
+        ]
+        def fullPath = candidates.find { it.exists() }
+        if (!fullPath) {
+          println "[react-native-vosk] Warning: model path not found (tried): ${candidates}"
+          return
+        }
+        if (!fullPath.isDirectory()) {
+          println "[react-native-vosk] Warning: not a directory: ${fullPath}"
+          return
+        }
+        def modelName = fullPath.name
+        println "[react-native-vosk] Processing model: ${fullPath}"
+        def androidOutDir = file("$buildDir/generated/assets/${modelName}")
+        mkdir androidOutDir
+        copy { from fullPath; into androidOutDir }
+        def outFile = file("$androidOutDir/uuid")
+        outFile.text = UUID.randomUUID().toString()
+        println "[react-native-vosk] Generated UUID for ${modelName}: ${outFile.text}"
+      }
+      return
+    }
+
+    // Fallback scanning behaviour (original implementation)
     def androidAppDir = rootDir.toPath().parent.toFile()
     def srcDir = file("$androidAppDir/assets")
-    println "Searching for model directories in: $srcDir"
+    println "[react-native-vosk] Vosk_models not set, scanning in: $srcDir"
     fileTree(dir: "$srcDir", exclude: ['*/*']).visit { fileDetails ->
-      if (fileDetails.directory && fileDetails.file.name.startsWith("model")) {
+      if (fileDetails.directory && fileDetails.file.name.startsWith('model')) {
         def outDir = file("$srcDir/$fileDetails.relativePath")
-
-        println "Processing model directory: $outDir"
-
+        println "[react-native-vosk] Processing model (scan): $outDir"
         def androidOutDir = file("$buildDir/generated/assets/$fileDetails.relativePath")
         mkdir androidOutDir
+        copy { from outDir; into androidOutDir }
         def outFile = file("$androidOutDir/uuid")
-        println "Generating UUID for model ${fileDetails.relativePath} in $outFile"
-        // Copy all files from outDir to androidOutDir (Important: keep folder structure)
-        copy {
-          from outDir
-          into androidOutDir
-        }
         outFile.text = UUID.randomUUID().toString()
+        println "[react-native-vosk] Generated UUID for ${fileDetails.relativePath}: ${outFile.text}"
       }
     }
   }

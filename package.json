@@ -10,6 +10,9 @@
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
+    "./plugin": {
+      "default": "./plugin/withVosk.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -17,7 +20,9 @@
     "lib",
     "android",
     "ios",
+    "plugin",
     "cpp",
+    "app.plugin.js",
     "*.podspec",
     "react-native.config.js",
     "!ios/build",
@@ -69,6 +74,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.35.0",
     "@evilmartians/lefthook": "^1.12.3",
+    "@expo/config-plugins": "^54.0.1",
     "@react-native-community/cli": "20.0.1",
     "@react-native/babel-preset": "0.81.1",
     "@react-native/eslint-config": "^0.81.1",
@@ -91,7 +97,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "expo": "*"
   },
   "workspaces": [
     "example"
