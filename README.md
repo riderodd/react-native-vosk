@@ -52,6 +52,16 @@ Check `Copy items if needed`. If you want to avoid having the model living twice
 
 <a href="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png" target="_blank" rel="noopener noreferer"><img src="https://raw.githubusercontent.com/riderodd/react-native-vosk/main/docs/xcode_full_settings_screenshot.png" alt="XCode full settings screenshot" width="200" /></a>
 
+**_Microphone permission_**
+Don't forget to add the microphone permission to your `Info.plist` file if you haven't already:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>We need access to your microphone for speech recognition</string>
+```
+
+Or in XCode, open your `Info.plist` file, hover the last line and click on the `+` button that appears. Select `Privacy - Microphone Usage Description` in the dropdown list. In the value field, enter a message that will be displayed to the user when the system asks for microphone permission.
+
 ## Usage
 
 ```js

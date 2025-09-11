@@ -1,6 +1,6 @@
 {
   "name": "react-native-vosk",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Speech recognition module for react native using Vosk library",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
