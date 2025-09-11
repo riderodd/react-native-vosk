@@ -96,9 +96,9 @@
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
+    "expo": "*",
     "react": "*",
-    "react-native": "*",
-    "expo": "*"
+    "react-native": "*"
   },
   "workspaces": [
     "example"
