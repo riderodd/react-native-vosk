@@ -1,6 +1,6 @@
 {
   "name": "react-native-vosk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Speech recognition module for react native using Vosk library",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -10,6 +10,9 @@
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
+    "./plugin": {
+      "default": "./plugin/withVosk.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -17,7 +20,9 @@
     "lib",
     "android",
     "ios",
+    "plugin",
     "cpp",
+    "app.plugin.js",
     "*.podspec",
     "react-native.config.js",
     "!ios/build",
@@ -69,6 +74,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.35.0",
     "@evilmartians/lefthook": "^1.12.3",
+    "@expo/config-plugins": "^54.0.1",
     "@react-native-community/cli": "20.0.1",
     "@react-native/babel-preset": "0.81.1",
     "@react-native/eslint-config": "^0.81.1",

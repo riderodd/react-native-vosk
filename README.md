@@ -62,6 +62,42 @@ Don't forget to add the microphone permission to your `Info.plist` file if you h
 
 Or in XCode, open your `Info.plist` file, hover the last line and click on the `+` button that appears. Select `Privacy - Microphone Usage Description` in the dropdown list. In the value field, enter a message that will be displayed to the user when the system asks for microphone permission.
 
+### Expo (Config Plugin)
+
+This library ships with an optional Expo config plugin so you can use it in managed or prebuild workflows.
+
+Add the plugin in your `app.json` (or `app.config.js`):
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-vosk",
+        {
+          "models": ["assets/model-fr-fr", "assets/model-en-en"],
+          "iOSMicrophonePermission": "Nous avons besoin d'accéder à votre microphone"
+        }
+      ]
+    ]
+  }
+}
+```
+
+Options (all optional):
+
+- `models`: Array of relative paths (from project root) to model folders. They will:
+  - On iOS: be copied into the Xcode project root and added as resources.
+  - On Android: be passed as a Gradle property (`Vosk_models`) so UUID generation copies them into the library's generated assets.
+    Ensure each folder is a valid Vosk model directory.
+- `iOSMicrophonePermission`: String used for `NSMicrophoneUsageDescription`.
+
+Notes:
+
+- If `models` is omitted, Android falls back to legacy scanning of an adjacent `assets` folder for `model-*` directories (bare workflow behavior).
+- Bare React Native users can continue to integrate models manually; Expo is not required.
+- After changing plugin config run `npx expo prebuild` (or `expo prebuild -p ios|android`) to regenerate native projects.
+
 ## Usage
 
 ```js
