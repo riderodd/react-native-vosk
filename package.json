@@ -2,25 +2,16 @@
   "name": "react-native-vosk",
   "version": "2.1.1",
   "description": "Speech recognition module for react native using Vosk library",
-  "main": "./lib/module/index.js",
-  "types": "./lib/typescript/src/index.d.ts",
-  "exports": {
-    ".": {
-      "source": "./src/index.tsx",
-      "types": "./lib/typescript/src/index.d.ts",
-      "default": "./lib/module/index.js"
-    },
-    "./plugin": {
-      "default": "./plugin/withVosk.js"
-    },
-    "./package.json": "./package.json"
-  },
+  "types": "lib/typescript/src/index.d.ts",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
+  "react-native": "src/index.ts",
   "files": [
     "src",
     "lib",
     "android",
     "ios",
-    "plugin",
+    "plugin/build",
     "cpp",
     "app.plugin.js",
     "*.podspec",
@@ -150,18 +141,9 @@
     "source": "src",
     "output": "lib",
     "targets": [
-      [
-        "module",
-        {
-          "esm": true
-        }
-      ],
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build.json"
-        }
-      ]
+      "module",
+      "commonjs",
+      "typescript"
     ]
   },
   "codegenConfig": {
