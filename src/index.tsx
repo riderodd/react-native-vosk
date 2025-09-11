@@ -1,98 +1,120 @@
-import {
-  type EventSubscription,
-  NativeEventEmitter,
-  NativeModules,
-  PermissionsAndroid,
-  Platform,
-} from 'react-native';
-import type { VoskInterface, VoskOptions } from './index.d';
+import { PermissionsAndroid, Platform } from 'react-native';
+import Vosk, { type VoskOptions } from './NativeVosk';
 
-const LINKING_ERROR =
-  `The package 'react-native-vosk' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+/**
+ * Loads the model from specified path
+ *
+ * @param path - Path of the model.
+ * @returns A promise that resolves when the model is loaded
+ * @example
+ *   loadModel('model-fr-fr').then(() => {
+ *      setLoaded(true);
+ *   });
+ */
+export function loadModel(path: string) {
+  return Vosk.loadModel(path);
+}
 
-const VoskModule: VoskInterface = NativeModules.Vosk
-  ? NativeModules.Vosk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+/**
+ * Unloads the model, also stops the recognizer.
+ *
+ * @example
+ *   unload().then(() => {
+ *      setLoaded(false);
+ *   });
+ * @returns A promise that resolves when the model is unloaded
+ */
+export function unload() {
+  return Vosk.unload();
+}
 
-const eventEmitter = new NativeEventEmitter(VoskModule);
+/**
+ * Requests record permission on Android.
+ *
+ * @returns true if permission is granted, false otherwise
+ * @private
+ */
+async function requestRecordPermission() {
+  if (Platform.OS === 'ios') return true;
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO!
+  );
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
+}
 
-export default class Vosk {
-  // Public functions
+/**
+ * Asks for recording permissions then starts the recognizer.
+ *
+ * @param options - Optional settings for the recognizer.
+ * @returns A promise that resolves when the recognizer has started
+ * @example
+ *   start().then(() => console.log("Recognizer started"));
+ *
+ *   start({
+ *      grammar: ['cool', 'application', '[unk]'],
+ *      timeout: 5000,
+ *   }).catch(e => console.log(e));
+ */
+export function start(options?: VoskOptions) {
+  return requestRecordPermission().then((granted) => {
+    if (granted) return Vosk.start(options);
+    return Promise.reject('Record permission not granted');
+  });
+}
 
-  /**
-   * Loads the model from specified path
-   *
-   * @param path - Path of the model.
-   *
-   * @example
-   *   vosk.loadModel('model-fr-fr').then(() => {
-   *      setLoaded(true);
-   *   });
-   */
-  loadModel = (path: string) => VoskModule.loadModel(path);
+/**
+ * Stops the recognizer. Listener should receive final result if there is any.
+ *
+ * @example
+ *   stop();
+ * @returns void
+ */
+export function stop() {
+  return Vosk.stop();
+}
 
-  /**
-   * Asks for recording permissions then starts the recognizer.
-   *
-   * @param options - Optional settings for the recognizer.
-   *
-   * @example
-   *   vosk.start().then(() => console.log("Recognizer started"));
-   *
-   *   vosk.start({
-   *      grammar: ['cool', 'application', '[unk]'],
-   *      timeout: 5000,
-   *   }).catch(e => console.log(e));
-   */
-  start = async (options?: VoskOptions) => {
-    if (await this.requestRecordPermission()) return VoskModule.start(options);
-  };
+/**
+ * Event listener for error event
+ *
+ * @param cb - Callback to be called on error event
+ * @returns A subscription to the event
+ */
+export function onError(cb: (e: any) => void) {
+  return Vosk.onError(cb);
+}
 
-  /**
-   * Stops the recognizer. Listener should receive final result if there is any.
-   */
-  stop = () => VoskModule.stop();
+/** Event listener for timeout event
+ *
+ * @param cb - Callback to be called on timeout event
+ * @returns A subscription to the event
+ */
+export function onTimeout(cb: () => void) {
+  return Vosk.onTimeout(cb);
+}
 
-  /**
-   * Unloads the model, also stops the recognizer.
-   */
-  unload = () => VoskModule.unload();
+/** Event listener for partial result event
+ *
+ * @param cb - Callback to be called on partial result event
+ * @returns A subscription to the event
+ */
+export function onPartialResult(cb: (e: string) => void) {
+  return Vosk.onPartialResult(cb);
+}
 
-  // Event listeners builders
+/** Event listener for final result event
+ *
+ * @param cb - Callback to be called on final result event
+ * @returns A subscription to the event
+ */
+export function onFinalResult(cb: (e: string) => void) {
+  return Vosk.onFinalResult(cb);
+}
 
-  onResult = (cb: (e: string) => void): EventSubscription => {
-    return eventEmitter.addListener('onResult', cb);
-  };
-  onPartialResult = (cb: (e: string) => void): EventSubscription => {
-    return eventEmitter.addListener('onPartialResult', cb);
-  };
-  onFinalResult = (cb: (e: string) => void): EventSubscription => {
-    return eventEmitter.addListener('onFinalResult', cb);
-  };
-  onError = (cb: (e: any) => void): EventSubscription => {
-    return eventEmitter.addListener('onError', cb);
-  };
-  onTimeout = (cb: () => void): EventSubscription => {
-    return eventEmitter.addListener('onTimeout', cb);
-  };
-
-  // Private functions
-
-  private requestRecordPermission = async () => {
-    if (Platform.OS === 'ios') return true;
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO!
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  };
+/** Event listener for result event
+ *
+ * @param cb - Callback to be called on result event
+ * @returns A subscription to the event
+ */
+export function onResult(cb: (e: string) => void) {
+  return Vosk.onResult(cb);
 }

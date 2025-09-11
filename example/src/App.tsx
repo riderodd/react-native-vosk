@@ -1,22 +1,20 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
-import Vosk from 'react-native-vosk';
+import * as vosk from 'react-native-vosk';
 
-export default function App(): JSX.Element {
+export default function App() {
   const [ready, setReady] = useState<Boolean>(false);
   const [recognizing, setRecognizing] = useState<Boolean>(false);
   const [result, setResult] = useState<string | undefined>();
 
-  const vosk = useRef(new Vosk()).current;
-
-  const load = useCallback(() => {
+  const load = () => {
     vosk
       .loadModel('model-fr-fr')
       // .loadModel('model-en-us')
       .then(() => setReady(true))
       .catch((e) => console.error(e));
-  }, [vosk]);
+  };
 
   const record = () => {
     vosk
@@ -54,11 +52,11 @@ export default function App(): JSX.Element {
     setRecognizing(false);
   };
 
-  const unload = useCallback(() => {
+  const unload = () => {
     vosk.unload();
     setReady(false);
     setRecognizing(false);
-  }, [vosk]);
+  };
 
   useEffect(() => {
     const resultEvent = vosk.onResult((res) => {
@@ -90,7 +88,7 @@ export default function App(): JSX.Element {
       errorEvent.remove();
       timeoutEvent.remove();
     };
-  }, [vosk]);
+  }, []);
 
   return (
     <View style={styles.container}>
