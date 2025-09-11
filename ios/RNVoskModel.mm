@@ -8,12 +8,12 @@
 - (instancetype)initWithName:(NSString *)name error:(NSError * _Nullable __autoreleasing *)error {
   self = [super init];
   if (self) {
-    // Désactiver les logs si nécessaire (0 = niveau par défaut; <0 = silencieux)
+    // Disable logs if necessary (0 = default level; <0 = silent)
     vosk_set_log_level(0);
 
     NSString *normalized = [name stringByReplacingOccurrencesOfString:@"file://" withString:@""];
 
-    // Essayer d'ouvrir directement depuis le chemin fourni
+    // Try to open directly from the provided path
     _model = vosk_model_new([normalized UTF8String]);
 
     if (_model) {
@@ -27,7 +27,7 @@
       }
     }
 
-    // Charger le modèle speaker depuis le bundle de cette lib si disponible
+    // Load speaker model from this library's bundle if available
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
     NSString *spkPath = [bundle pathForResource:@"vosk-model-spk-0.4" ofType:nil];
     if (spkPath) {

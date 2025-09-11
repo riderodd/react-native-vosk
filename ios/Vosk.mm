@@ -4,7 +4,7 @@
 #import "RNVoskModel.h"
 #import "Vosk-API.h"
 
-// Clé spécifique pour détecter l'exécution sur la queue de traitement
+// Specific key to detect execution on the processing queue
 static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 
 @implementation Vosk {
@@ -16,9 +16,9 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
   AVAudioFormat *_formatInput;
   dispatch_queue_t _processingQueue;
   NSString *_Nullable _lastPartial;
-  dispatch_source_t _Nullable _timeoutSource; // timer GCD haute perf
-  // suppression de la gestion _hasListener : on émet toujours
-  BOOL _isRunning; // protège l'utilisation du recognizer après stop
+  dispatch_source_t _Nullable _timeoutSource; // high-performance GCD timer
+  // removed _hasListener management: we always emit
+  BOOL _isRunning; // protects use of recognizer after stop
 } RCT_EXPORT_MODULE()
 
 
@@ -50,7 +50,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 }
 
 - (void)loadModel:(nonnull NSString *)path resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
-  // Décharge le modèle courant si existant
+  // Unload the current model if any
   _currentModel = nil;
   NSError *err = nil;
   RNVoskModel *model = [[RNVoskModel alloc] initWithName:path error:&err];
@@ -71,7 +71,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
 
-  // Extraire options (grammar, timeout) depuis la structure codegen
+  // Extract options (grammar, timeout) from the codegen structure
   NSArray<NSString *> *grammar = nil;
   double timeoutMs = -1;
 
@@ -94,7 +94,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 
   CFAbsoluteTime tStart = CFAbsoluteTimeGetCurrent();
   @try {
-    // Configurer la session audio
+    // Configure audio session
     NSError *err = nil;
     if (@available(iOS 10.0, *)) {
       [audioSession setCategory:AVAudioSessionCategoryRecord mode:AVAudioSessionModeMeasurement options:0 error:&err];
@@ -113,7 +113,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 
     __weak __typeof(self) weakSelf = self;
 
-    // Création asynchrone du recognizer (coûteux) sur la queue de traitement
+    // Asynchronous creation of recognizer (expensive) on processing queue
     dispatch_async(_processingQueue, ^{
       __strong __typeof(self) self = weakSelf; if (!self || !self->_isRunning) return;
       CFAbsoluteTime tRec0 = CFAbsoluteTimeGetCurrent();
@@ -161,7 +161,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
       });
     });
 
-    // Timer GCD pour timeout
+    // GCD timer for timeout
     if (timeoutMs >= 0) {
       _timeoutSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _processingQueue);
       if (_timeoutSource) {
@@ -179,11 +179,11 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
 
     CFAbsoluteTime tEnd = CFAbsoluteTimeGetCurrent();
     NSLog(@"[Vosk] start() sync phase: %.2f ms", (tEnd - tStart)*1000.0);
-    // early resolve pour libérer JS rapidement
+    // early resolve to release JS quickly
     resolve(nil);
     return;
   } @catch (NSException *ex) {
-    // Log et émettre erreur
+    // Log and emit error
     NSLog(@"Error starting audio engine: %@", ex.reason);
   [self emitOnError:[NSString stringWithFormat:@"Unable to start AVAudioEngine %@", ex.reason ?: @""]];
     if (_recognizer) {
@@ -220,16 +220,16 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
   return std::make_shared<facebook::react::NativeVoskSpecJSI>(params);
 }
 
-// Nettoyage interne
+// Internal cleanup
 - (void)stopInternalWithoutEvents:(BOOL)withoutEvents {
   @try {
     [_inputNode removeTapOnBus:0];
   } @catch (...) {}
 
   if (!_isRunning) {
-    // déjà stoppé
+    // already stopped
   }
-  _isRunning = NO; // empêche nouveaux buffers d'être traités
+  _isRunning = NO; // prevents new buffers from being processed
 
   if (_audioEngine.isRunning) {
     [_audioEngine stop];
@@ -238,7 +238,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
     }
     _lastPartial = nil;
   }
-  // Libération du recognizer après vidage de la queue de traitement, sans deadlock si déjà sur la queue
+  // Recognizer cleanup after draining processing queue, without deadlock if already on the queue
   if (dispatch_get_specific(kVoskProcessingQueueKey)) {
     if (_recognizer) {
       vosk_recognizer_free(_recognizer);

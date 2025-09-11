@@ -3,13 +3,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Wrapper Objective-C pour le modèle Vosk C
+// Objective-C wrapper for Vosk C model
 @interface RNVoskModel : NSObject
 
 @property(nonatomic, assign, readonly) struct VoskModel *model;
 @property(nonatomic, assign, readonly) struct VoskSpkModel *spkModel;
 
-// name: chemin du modèle (peut être relatif au bundle ou absolu). "file://" sera ignoré.
+// name: model path (can be relative to bundle or absolute). "file://" will be ignored.
 - (instancetype)initWithName:(NSString *)name error:(NSError * _Nullable * _Nullable)error;
 
 @end
