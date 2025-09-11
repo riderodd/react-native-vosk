@@ -14,9 +14,9 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/riderodd/react-native-vosk.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,m,mm,cpp,swift}", "ios/vosk-model-spk-0.4/*"
+  s.source_files = "ios/**/*.{h,m,mm,cpp}", "ios/vosk-model-spk-0.4/*"
   s.private_header_files = "ios/**/*.h"
-  s.frameworks = "Accelerate"
+  s.frameworks = "Accelerate", "AVFoundation"
   s.library = "c++"
   s.vendored_frameworks = "ios/libvosk.xcframework"
   s.requires_arc = true
