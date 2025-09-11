@@ -3,19 +3,18 @@ import {
   withInfoPlist,
   withXcodeProject,
   withGradleProperties,
+  createRunOncePlugin,
 } from '@expo/config-plugins';
 import fs from 'fs';
 import path from 'path';
+import pkg from '../../package.json';
 
 export type VoskPluginProps = {
   models?: string[]; // Relative paths as provided in app.json (e.g., assets/model-fr-fr)
   iOSMicrophonePermission?: string; // NSMicrophoneUsageDescription text
 };
 
-const withVosk: ConfigPlugin<VoskPluginProps> = (
-  config,
-  props: VoskPluginProps = {}
-) => {
+const withVosk: ConfigPlugin<VoskPluginProps | void> = (config, props) => {
   const { models = [], iOSMicrophonePermission } = props as VoskPluginProps;
 
   // iOS: add microphone permission string
@@ -84,4 +83,4 @@ const withVosk: ConfigPlugin<VoskPluginProps> = (
   return config;
 };
 
-export default withVosk;
+export default createRunOncePlugin(withVosk, pkg.name, pkg.version);
