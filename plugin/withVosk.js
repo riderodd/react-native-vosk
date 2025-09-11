@@ -34,9 +34,7 @@ const withVosk = (config, props = {}) => {
   if (iOSMicrophonePermission) {
     withInfoPlist(config, (configMod) => {
       configMod.modResults.NSMicrophoneUsageDescription =
-        iOSMicrophonePermission ||
-        configMod.modResults.NSMicrophoneUsageDescription ||
-        'Microphone access is required for speech recognition';
+        iOSMicrophonePermission;
       return configMod;
     });
   }

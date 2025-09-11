@@ -22,9 +22,7 @@ const withVosk: ConfigPlugin<VoskPluginProps> = (
   if (iOSMicrophonePermission) {
     withInfoPlist(config, (configMod) => {
       configMod.modResults.NSMicrophoneUsageDescription =
-        iOSMicrophonePermission ||
-        configMod.modResults.NSMicrophoneUsageDescription ||
-        'Microphone access is required for speech recognition';
+        iOSMicrophonePermission;
       return configMod;
     });
   }
