@@ -1835,7 +1835,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-vosk (1.0.0):
+  - react-native-vosk (2.1.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -2643,7 +2643,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 91e0eab42a6ae7f3e34091a126d70fc53bd3823e
   React-microtasksnativemodule: 1ead4fe154df3b1ba34b5a9e35ef3c4bdfa72ccb
   react-native-safe-area-context: c6e2edd1c1da07bdce287fa9d9e60c5f7b514616
-  react-native-vosk: d6e75b7aeab1b3ce0beeee5aec2c4adaa898ef7b
+  react-native-vosk: 25bd5e5a7b3b1197ebf56c65e783c9852cc04fa8
   React-NativeModulesApple: eff2eba56030eb0d107b1642b8f853bc36a833ac
   React-oscompat: b12c633e9c00f1f99467b1e0e0b8038895dae436
   React-perflogger: 58d12c4e5df1403030c97b9c621375c312cca454
