@@ -4,6 +4,7 @@ import {
   withXcodeProject,
   withGradleProperties,
   createRunOncePlugin,
+  IOSConfig,
 } from '@expo/config-plugins';
 import fs from 'fs';
 import path from 'path';
@@ -30,32 +31,24 @@ const withVosk: ConfigPlugin<VoskPluginProps | void> = (config, props) => {
   if (models.length) {
     withXcodeProject(config, (configMod) => {
       const project = configMod.modResults;
-      const iosRoot = configMod.modRequest.platformProjectRoot; // <app>/ios
+      const iosRoot = configMod.modRequest.projectRoot; // <app>/ios
+      IOSConfig.XcodeUtils.ensureGroupRecursively(project, 'Resources');
 
       models.forEach((relModelPath: string) => {
-        const absSource = path.join(
-          configMod.modRequest.projectRoot,
-          relModelPath
-        );
+        const absSource = path.relative(iosRoot, relModelPath);
         if (!fs.existsSync(absSource)) {
           console.warn(
             '[react-native-vosk] iOS model path not found: ' + absSource
           );
           return;
         }
-        const modelFolderName = path.basename(absSource);
-        // Destination inside ios folder (copy folder to keep it under version control if needed)
-        const destFolder = path.join(iosRoot, modelFolderName);
-        if (!fs.existsSync(destFolder)) {
-          fs.cpSync(absSource, destFolder, { recursive: true });
-        }
-
-        // Add to Xcode project if not already
-        const projectRelative = modelFolderName;
-        const fileRef = project.hasFile(projectRelative);
-        if (!fileRef) {
-          project.addResourceFile(projectRelative, { variantGroup: false });
-        }
+        IOSConfig.XcodeUtils.addResourceFileToGroup({
+          filepath: absSource,
+          groupName: 'Resources',
+          project,
+          isBuildFile: true,
+          verbose: true,
+        });
       });
 
       return configMod;
