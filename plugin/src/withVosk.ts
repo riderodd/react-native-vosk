@@ -31,11 +31,14 @@ const withVosk: ConfigPlugin<VoskPluginProps | void> = (config, props) => {
   if (models.length) {
     withXcodeProject(config, (configMod) => {
       const project = configMod.modResults;
-      const iosRoot = configMod.modRequest.projectRoot; // <app>/ios
+      const iosRoot = configMod.modRequest.platformProjectRoot; // <app>/ios
       IOSConfig.XcodeUtils.ensureGroupRecursively(project, 'Resources');
 
       models.forEach((relModelPath: string) => {
-        const absSource = path.relative(iosRoot, relModelPath);
+        const absSource = path.join(
+          configMod.modRequest.projectRoot,
+          relModelPath
+        );
         if (!fs.existsSync(absSource)) {
           console.warn(
             '[react-native-vosk] iOS model path not found: ' + absSource
@@ -43,7 +46,7 @@ const withVosk: ConfigPlugin<VoskPluginProps | void> = (config, props) => {
           return;
         }
         IOSConfig.XcodeUtils.addResourceFileToGroup({
-          filepath: absSource,
+          filepath: path.relative(iosRoot, absSource),
           groupName: 'Resources',
           project,
           isBuildFile: true,
