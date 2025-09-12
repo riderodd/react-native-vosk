@@ -22,6 +22,8 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
   BOOL _isRunning; // protects use of recognizer after stop
   BOOL _isStarting; // prevents concurrent start
   BOOL _tapInstalled; // track tap installation
+  BOOL _pendingTap; // indicates we are retrying tap installation
+  int _tapRetryCount; // retry counter
 }
 RCT_EXPORT_MODULE()
 
@@ -41,6 +43,8 @@ RCT_EXPORT_MODULE()
     _isRunning = NO;
     _isStarting = NO;
     _tapInstalled = NO;
+    _pendingTap = NO;
+    _tapRetryCount = 0;
   }
   return self;
 }
@@ -87,6 +91,8 @@ RCT_EXPORT_MODULE()
     return;
   }
   _isStarting = YES;
+  _tapRetryCount = 0;
+  _pendingTap = NO;
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
 
   // Extract options (grammar, timeout) from the codegen structure
@@ -153,9 +159,9 @@ RCT_EXPORT_MODULE()
       }
 
   self->_formatInput = [self->_inputNode inputFormatForBus:0];
-      const double sampleRate = (self->_formatInput.sampleRate > 0) ? self->_formatInput.sampleRate : 16000.0;
-      const AVAudioFrameCount bufferSize = (AVAudioFrameCount)(sampleRate / 10.0);
-      self->_isRunning = YES;
+  const double sampleRate = (self->_formatInput.sampleRate > 0) ? self->_formatInput.sampleRate : 16000.0;
+  const AVAudioFrameCount bufferSize = (AVAudioFrameCount)(sampleRate / 10.0);
+  self->_isRunning = YES;
 
       __weak __typeof(self) weakSelf = self;
       dispatch_async(self->_processingQueue, ^{ // recognizer init off main
@@ -185,97 +191,19 @@ RCT_EXPORT_MODULE()
           return; // promise already resolved later below or not? -> we won't resolve now
         }
 
-        dispatch_async(dispatch_get_main_queue(), ^{ // install tap + start engine
+        dispatch_async(dispatch_get_main_queue(), ^{ // start engine first
           if (!self->_isRunning) { self->_isStarting = NO; return; }
-          if (self->_tapInstalled) {
-            NSLog(@"[Vosk] Tap already installed – skipping reinstall");
-            self->_isStarting = NO;
-            resolve(nil);
-            return;
-          }
-          AVAudioFormat *tapFormat = [self->_inputNode inputFormatForBus:0];
-          if (!tapFormat) {
-            [self emitOnError:@"tapFormat is nil; cannot install tap"]; 
-            [self stopInternalWithoutEvents:YES];
-            self->_isStarting = NO;
-            return;
-          }
-          BOOL invalidSR = tapFormat.sampleRate <= 0.0;
-          BOOL invalidCh = tapFormat.channelCount == 0;
-          if (invalidSR || invalidCh) {
-            NSLog(@"[Vosk] Invalid input format (sr=%.1f ch=%u) -> using nil format", tapFormat.sampleRate, (unsigned int)tapFormat.channelCount);
-            tapFormat = nil;
-          }
-          __weak __typeof(self) weakSelfTap = self;
-          @try {
-            [self->_inputNode installTapOnBus:0 bufferSize:bufferSize format:tapFormat block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
-            __strong __typeof(self) self = weakSelfTap; if (!self) return; if (!self->_isRunning) return;
-            dispatch_async(self->_processingQueue, ^{
-              if (!self->_isRunning) return; VoskRecognizer *recognizer = self->_recognizer; if (!recognizer) return;
-              AVAudioFrameCount frames = buffer.frameLength; if (frames == 0) return;
-              int accepted = 0;
-              if (buffer.int16ChannelData && buffer.int16ChannelData[0]) {
-                int dataLen = (int)(frames * sizeof(int16_t));
-                accepted = vosk_recognizer_accept_waveform(recognizer, (const char *)buffer.int16ChannelData[0], (int32_t)dataLen);
-              } else if (buffer.floatChannelData && buffer.floatChannelData[0]) {
-                float *const *floatChannels = buffer.floatChannelData; std::vector<int16_t> pcm16; pcm16.resize(frames); float *ch0 = floatChannels[0];
-                for (AVAudioFrameCount i = 0; i < frames; ++i) { float s = ch0[i]; if (s > 1.f) s = 1.f; else if (s < -1.f) s = -1.f; pcm16[i] = (int16_t)lrintf(s * 32767.f); }
-                int dataLen = (int)(frames * sizeof(int16_t));
-                accepted = vosk_recognizer_accept_waveform(recognizer, (const char *)pcm16.data(), (int32_t)dataLen);
-              } else { return; }
-
-              const char *cstr = NULL;
-              BOOL isFinal = NO;
-              if (accepted) { // end of utterance recognized per Vosk API
-                cstr = vosk_recognizer_result(recognizer);
-                isFinal = YES;
-              } else {
-                cstr = vosk_recognizer_partial_result(recognizer);
-                isFinal = NO;
-              }
-              NSString *json = cstr ? [NSString stringWithUTF8String:cstr] : nil;
-              dispatch_async(dispatch_get_main_queue(), ^{
-                if (!json) return;
-                NSData *data = [json dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
-                if (![parsed isKindOfClass:[NSDictionary class]]) {
-                  if (isFinal) { [self emitOnResult:json]; } else { [self emitOnPartialResult:json]; }
-                  return;
-                }
-                NSString *text = parsed[@"text"]; NSString *partial = parsed[@"partial"];
-                if (isFinal) {
-                  if (text.length > 0) { [self emitOnResult:text]; }
-                  self->_lastPartial = nil; // reset after final
-                } else {
-                  if (partial.length > 0 && (!self->_lastPartial || ![self->_lastPartial isEqualToString:partial])) {
-                    [self emitOnPartialResult:partial];
-                  }
-                  self->_lastPartial = partial ?: self->_lastPartial;
-                }
-              });
-            });
-            }];
-            self->_tapInstalled = YES;
-          } @catch (NSException *ex) {
-            [self emitOnError:[NSString stringWithFormat:@"Failed to install tap: %@", ex.reason ?: @"unknown"]];
-            [self stopInternalWithoutEvents:YES];
-            self->_isStarting = NO;
-            reject(@"start", @"Failed to install tap", nil);
-            return;
-          }
           [self->_audioEngine prepare];
           NSError *startErr = nil;
           if (![self->_audioEngine startAndReturnError:&startErr]) {
             NSString *msg = [NSString stringWithFormat:@"Failed to start audio engine: %@", startErr.localizedDescription];
             [self emitOnError:msg];
-            // clean
             [self stopInternalWithoutEvents:YES];
-            reject(@"start", msg, startErr); // still reject if not yet resolved
             self->_isStarting = NO;
+            reject(@"start", msg, startErr);
             return;
           }
-
-          // Timeout timer after engine started
+          // Timeout timer
           if (timeoutMs >= 0) {
             self->_timeoutSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self->_processingQueue);
             if (self->_timeoutSource) {
@@ -286,16 +214,67 @@ RCT_EXPORT_MODULE()
               dispatch_resume(self->_timeoutSource);
             }
           }
-
           CFAbsoluteTime tEnd = CFAbsoluteTimeGetCurrent();
-          NSLog(@"[Vosk] start() total after permission: %.2f ms", (tEnd - tStart) * 1000.0);
-          // Resolve promise (success path)
-          self->_isStarting = NO;
+          NSLog(@"[Vosk] start() engine running (tap pending): %.2f ms", (tEnd - tStart) * 1000.0);
+          // Resolve early; tap installation will be async via retry
           resolve(nil);
+          self->_isStarting = NO;
+          self->_pendingTap = YES;
+          self->_tapRetryCount = 0;
+          [self scheduleTapInstallationWithBufferSize:bufferSize];
         });
       });
     });
   }];
+}
+
+// Retry-based tap installer; called on main queue only
+- (void)scheduleTapInstallationWithBufferSize:(AVAudioFrameCount)bufferSize {
+  if (!_isRunning) { _pendingTap = NO; return; }
+  if (_tapInstalled) { _pendingTap = NO; return; }
+  if (!_recognizer) { _pendingTap = NO; return; }
+  AVAudioFormat *fmt = [_inputNode inputFormatForBus:0];
+  double sr = fmt ? fmt.sampleRate : 0.0;
+  AVAudioChannelCount ch = fmt ? fmt.channelCount : 0;
+  if (sr <= 0.0 || ch == 0) {
+    if (_tapRetryCount == 0) {
+      NSLog(@"[Vosk] Tap install waiting for valid format… (sr=%.1f ch=%u)", sr, (unsigned int)ch);
+    }
+    if (_tapRetryCount >= 25) { // ~2.5s at 100ms intervals
+      [self emitOnError:@"Unable to obtain valid audio input format (stabilization timeout)"]; _pendingTap = NO; return; }
+    _tapRetryCount++;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self scheduleTapInstallationWithBufferSize:bufferSize]; });
+    return;
+  }
+  // Have a valid format now
+  NSLog(@"[Vosk] Tap install attempt with format sr=%.1f ch=%u retry=%d", sr, (unsigned int)ch, _tapRetryCount);
+  __weak __typeof(self) weakSelfTap = self;
+  @try {
+    [_inputNode installTapOnBus:0 bufferSize:bufferSize format:fmt block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
+      __strong __typeof(self) self = weakSelfTap; if (!self) return; if (!self->_isRunning) return;
+      dispatch_async(self->_processingQueue, ^{
+        if (!self->_isRunning) return; VoskRecognizer *recognizer = self->_recognizer; if (!recognizer) return;
+        AVAudioFrameCount frames = buffer.frameLength; if (frames == 0) return;
+        int accepted = 0;
+        if (buffer.int16ChannelData && buffer.int16ChannelData[0]) {
+          int dataLen = (int)(frames * sizeof(int16_t));
+          accepted = vosk_recognizer_accept_waveform(recognizer, (const char *)buffer.int16ChannelData[0], (int32_t)dataLen);
+        } else if (buffer.floatChannelData && buffer.floatChannelData[0]) {
+          float *const *floatChannels = buffer.floatChannelData; std::vector<int16_t> pcm16; pcm16.resize(frames); float *ch0 = floatChannels[0];
+          for (AVAudioFrameCount i = 0; i < frames; ++i) { float s = ch0[i]; if (s > 1.f) s = 1.f; else if (s < -1.f) s = -1.f; pcm16[i] = (int16_t)lrintf(s * 32767.f); }
+          int dataLen = (int)(frames * sizeof(int16_t));
+          accepted = vosk_recognizer_accept_waveform(recognizer, (const char *)pcm16.data(), (int32_t)dataLen);
+        } else { return; }
+        const char *cstr = NULL; BOOL isFinal = NO; if (accepted) { cstr = vosk_recognizer_result(recognizer); isFinal = YES; } else { cstr = vosk_recognizer_partial_result(recognizer); }
+        NSString *json = cstr ? [NSString stringWithUTF8String:cstr] : nil;
+        dispatch_async(dispatch_get_main_queue(), ^{ if (!json) return; NSData *data = [json dataUsingEncoding:NSUTF8StringEncoding]; NSDictionary *parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil; if (![parsed isKindOfClass:[NSDictionary class]]) { if (isFinal) { [self emitOnResult:json]; } else { [self emitOnPartialResult:json]; } return; } NSString *text = parsed[@"text"]; NSString *partial = parsed[@"partial"]; if (isFinal) { if (text.length > 0) { [self emitOnResult:text]; } self->_lastPartial = nil; } else { if (partial.length > 0 && (!self->_lastPartial || ![self->_lastPartial isEqualToString:partial])) { [self emitOnPartialResult:partial]; } self->_lastPartial = partial ?: self->_lastPartial; } });
+      });
+    }];
+    _tapInstalled = YES; _pendingTap = NO; NSLog(@"[Vosk] Tap installed successfully after %d retries.", _tapRetryCount);
+  } @catch (NSException *ex) {
+    [self emitOnError:[NSString stringWithFormat:@"Failed to install tap (retry phase): %@", ex.reason ?: @"unknown"]];
+    _pendingTap = NO; [self stopInternalWithoutEvents:YES];
+  }
 }
 
 - (void)stop {
@@ -335,6 +314,7 @@ RCT_EXPORT_MODULE()
   _isRunning = NO; // prevents new buffers from being processed
   _isStarting = NO;
   _tapInstalled = NO;
+  _pendingTap = NO;
 
   if (_audioEngine.isRunning) {
     [_audioEngine stop];
