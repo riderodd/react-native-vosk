@@ -7614,16 +7614,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"del-cli@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "del-cli@npm:6.0.0"
+"del-cli@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "del-cli@npm:7.0.0"
   dependencies:
-    del: ^8.0.0
-    meow: ^13.2.0
+    del: ^8.0.1
+    meow: ^14.0.0
+    presentable-error: ^0.0.1
   bin:
     del: cli.js
     del-cli: cli.js
-  checksum: 83591847823d06a68bd07daa8b92b1092c30ac02acb320b8eff1f265c6ca633657d066070320a7fd7dba3ea4993be32470d557bf33e0ce94e026ee289135eac7
+  checksum: 3554fe1f2a519a43b69d6b671eb60ab354a52de081395c2321a1cca5ca860f6a7cc1e7c3a04b23f63c4929897ef58edabf052da885232ad93f879824af148770
   languageName: node
   linkType: hard
 
@@ -7643,17 +7644,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"del@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "del@npm:8.0.0"
+"del@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "del@npm:8.0.1"
   dependencies:
     globby: ^14.0.2
     is-glob: ^4.0.3
     is-path-cwd: ^3.0.0
     is-path-inside: ^4.0.0
     p-map: ^7.0.2
+    presentable-error: ^0.0.1
     slash: ^5.1.0
-  checksum: 502dea7a846f989e1d921733f5d41ae4ae9b3eff168d335bfc050c9ce938ddc46198180be133814269268c4b0aed441a82fbace948c0ec5eed4ed086a4ad3b0e
+  checksum: 53ed4a379a68c90e7d6d3bcce09c49229e77de9a946d0a5fc25f45b16c950cb8665986b7d0d0423416c03bfd43e0f31e528c5a19c558fe47449be9d6fae7f846
   languageName: node
   linkType: hard
 
@@ -12018,10 +12020,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"meow@npm:^13.0.0, meow@npm:^13.2.0":
+"meow@npm:^13.0.0":
   version: 13.2.0
   resolution: "meow@npm:13.2.0"
   checksum: 79c61dc02ad448ff5c29bbaf1ef42181f1eae9947112c0e23db93e84cbc2708ecda53e54bfc6689f1e55255b2cea26840ec76e57a5773a16ca45f4fe2163ec1c
+  languageName: node
+  linkType: hard
+
+"meow@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "meow@npm:14.0.0"
+  checksum: f3a5318229c2f463791282ee0f0e8b6a3ff634c80225e19313ccc5c015acc712bef0cc551e3f5039e2693bb2c1969cadd3b031e934f5fc1dfca08c95f7958a31
   languageName: node
   linkType: hard
 
@@ -13354,6 +13363,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"presentable-error@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "presentable-error@npm:0.0.1"
+  checksum: 013809ee7a47ced847a8d860e9b89a56cdd8c4f1ad04ad8da1e58fd60843f77f497d204146bb15aaa9793d3b94ad8626eed01256fc9eb5839a545af2000a5fa4
+  languageName: node
+  linkType: hard
+
 "prettier-linter-helpers@npm:^1.0.0":
   version: 1.0.0
   resolution: "prettier-linter-helpers@npm:1.0.0"
@@ -13688,7 +13704,7 @@ __metadata:
     "@types/jest": ^29.5.14
     "@types/react": ^19.1.0
     commitlint: ^19.8.1
-    del-cli: ^6.0.0
+    del-cli: ^7.0.0
     eslint: ^9.35.0
     eslint-config-prettier: ^10.1.8
     eslint-plugin-jest: ^29.0.1
