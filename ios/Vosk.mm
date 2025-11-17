@@ -33,9 +33,10 @@ RCT_EXPORT_MODULE()
         dispatch_queue_create("recognizerQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_queue_set_specific(_processingQueue, kVoskProcessingQueueKey,
                                 kVoskProcessingQueueKey, NULL);
-    _audioEngine = [AVAudioEngine new];
-    _inputNode = _audioEngine.inputNode;
-    _formatInput = [_inputNode inputFormatForBus:0];
+    // Lazy initialization to avoid triggering microphone permission prompt
+    _audioEngine = nil;
+    _inputNode = nil;
+    _formatInput = nil;
     _recognizer = NULL;
     _currentModel = nil;
     _lastPartial = nil;
@@ -93,6 +94,15 @@ RCT_EXPORT_MODULE()
   _isStarting = YES;
   _tapRetryCount = 0;
   _pendingTap = NO;
+  
+  // Lazy initialization of audio engine to avoid permission prompt at module load
+  if (!_audioEngine) {
+    _audioEngine = [AVAudioEngine new];
+  }
+  if (!_inputNode) {
+    _inputNode = _audioEngine.inputNode;
+  }
+  
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
 
   // Extract options (grammar, timeout) from the codegen structure
@@ -129,12 +139,14 @@ RCT_EXPORT_MODULE()
     if (catErr) {
       NSString *msg = [NSString stringWithFormat:@"Audio session category error: %@", catErr.localizedDescription];
       [self emitOnError:msg];
+      _isStarting = NO;
       reject(@"start", msg, catErr);
       return;
     }
   } @catch (NSException *ex) {
     NSString *msg = [NSString stringWithFormat:@"Exception setting category: %@", ex.reason ?: @"unknown"]; 
     [self emitOnError:msg];
+    _isStarting = NO;
     reject(@"start", msg, nil);
     return;
   }
@@ -145,6 +157,7 @@ RCT_EXPORT_MODULE()
       dispatch_async(dispatch_get_main_queue(), ^{
         NSString *msg = @"Microphone permission denied";
         [self emitOnError:msg];
+        self->_isStarting = NO;
         reject(@"start", msg, nil);
       });
       return;
@@ -154,6 +167,7 @@ RCT_EXPORT_MODULE()
       if (![audioSession setActive:YES error:&actErr]) {
         NSString *msg = [NSString stringWithFormat:@"Failed to activate audio session: %@", actErr.localizedDescription];
         [self emitOnError:msg];
+        self->_isStarting = NO;
         reject(@"start", msg, actErr);
         return;
       }
@@ -287,6 +301,9 @@ RCT_EXPORT_MODULE()
   if (_isRunning) {
     [self stopInternalWithoutEvents:NO];
   }
+  // Reset flags to allow restarting after unload
+  _isStarting = NO;
+  _isRunning = NO;
   _currentModel = nil;
 }
 
@@ -303,18 +320,18 @@ RCT_EXPORT_MODULE()
 
 // Internal cleanup
 - (void)stopInternalWithoutEvents:(BOOL)withoutEvents {
-  @try {
-    [_inputNode removeTapOnBus:0];
-  } @catch (...) {
-  }
-
-  if (!_isRunning) {
-    // already stopped
-  }
-  _isRunning = NO; // prevents new buffers from being processed
+  // Reset flags immediately to allow restart
+  _isRunning = NO;
   _isStarting = NO;
   _tapInstalled = NO;
   _pendingTap = NO;
+  
+  @try {
+    if (_inputNode) {
+      [_inputNode removeTapOnBus:0];
+    }
+  } @catch (...) {
+  }
 
   if (_audioEngine.isRunning) {
     [_audioEngine stop];
