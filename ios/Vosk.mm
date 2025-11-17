@@ -301,9 +301,12 @@ RCT_EXPORT_MODULE()
   if (_isRunning) {
     [self stopInternalWithoutEvents:NO];
   }
-  // Reset flags to allow restarting after unload
+  // Reset all flags to ensure consistent state regardless of running state
   _isStarting = NO;
   _isRunning = NO;
+  _tapInstalled = NO;
+  _pendingTap = NO;
+  _tapRetryCount = 0;
   _currentModel = nil;
 }
 
