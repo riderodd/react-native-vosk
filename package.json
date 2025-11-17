@@ -73,7 +73,7 @@
     "@types/jest": "^29.5.14",
     "@types/react": "^19.1.0",
     "commitlint": "^19.8.1",
-    "del-cli": "^6.0.0",
+    "del-cli": "^7.0.0",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.0.1",
