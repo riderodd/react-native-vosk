@@ -24,6 +24,7 @@ static void *kVoskProcessingQueueKey = &kVoskProcessingQueueKey;
   BOOL _tapInstalled; // track tap installation
   BOOL _pendingTap; // indicates we are retrying tap installation
   int _tapRetryCount; // retry counter
+  BOOL _managesAudioSession; // whether this module owns AVAudioSession
 }
 RCT_EXPORT_MODULE()
 
@@ -46,6 +47,7 @@ RCT_EXPORT_MODULE()
     _tapInstalled = NO;
     _pendingTap = NO;
     _tapRetryCount = 0;
+    _managesAudioSession = YES;
   }
   return self;
 }
@@ -123,32 +125,41 @@ RCT_EXPORT_MODULE()
   if (options && options->timeout()) {
     timeoutMs = *(options->timeout());
   }
+  // When false, the application owns AVAudioSession: the module configures
+  // neither its category here nor on stop. Kept for the whole session so that
+  // stop undoes exactly what start did.
+  _managesAudioSession = YES;
+  if (options && options->manageAudioSession()) {
+    _managesAudioSession = *(options->manageAudioSession());
+  }
 
   CFAbsoluteTime tStart = CFAbsoluteTimeGetCurrent();
   // Configure session category first (allowed even before permission)
-  NSError *catErr = nil;
-  @try {
-    if (@available(iOS 10.0, *)) {
-      [audioSession setCategory:AVAudioSessionCategoryRecord
-                           mode:AVAudioSessionModeMeasurement
-                        options:0
-                          error:&catErr];
-    } else {
-      [audioSession setCategory:AVAudioSessionCategoryRecord error:&catErr];
-    }
-    if (catErr) {
-      NSString *msg = [NSString stringWithFormat:@"Audio session category error: %@", catErr.localizedDescription];
+  if (_managesAudioSession) {
+    NSError *catErr = nil;
+    @try {
+      if (@available(iOS 10.0, *)) {
+        [audioSession setCategory:AVAudioSessionCategoryRecord
+                             mode:AVAudioSessionModeMeasurement
+                          options:0
+                            error:&catErr];
+      } else {
+        [audioSession setCategory:AVAudioSessionCategoryRecord error:&catErr];
+      }
+      if (catErr) {
+        NSString *msg = [NSString stringWithFormat:@"Audio session category error: %@", catErr.localizedDescription];
+        [self emitOnError:msg];
+        _isStarting = NO;
+        reject(@"start", msg, catErr);
+        return;
+      }
+    } @catch (NSException *ex) {
+      NSString *msg = [NSString stringWithFormat:@"Exception setting category: %@", ex.reason ?: @"unknown"];
       [self emitOnError:msg];
       _isStarting = NO;
-      reject(@"start", msg, catErr);
+      reject(@"start", msg, nil);
       return;
     }
-  } @catch (NSException *ex) {
-    NSString *msg = [NSString stringWithFormat:@"Exception setting category: %@", ex.reason ?: @"unknown"]; 
-    [self emitOnError:msg];
-    _isStarting = NO;
-    reject(@"start", msg, nil);
-    return;
   }
 
   // Request permission BEFORE doing heavy work
@@ -363,20 +374,26 @@ RCT_EXPORT_MODULE()
     _timeoutSource = nil;
   }
 
-  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-  NSError *err = nil;
-  if (@available(iOS 10.0, *)) {
-    [audioSession setCategory:AVAudioSessionCategoryPlayback
-                         mode:AVAudioSessionModeDefault
-                      options:0
-                        error:&err];
-  } else {
-    [audioSession setCategory:AVAudioSessionCategoryPlayback error:&err];
+  // Left alone when the application owns the session: deactivating it here
+  // tears down whatever the application had configured, and handing it back as
+  // `playback` takes the input route away from an application that still wants
+  // one.
+  if (_managesAudioSession) {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    NSError *err = nil;
+    if (@available(iOS 10.0, *)) {
+      [audioSession setCategory:AVAudioSessionCategoryPlayback
+                           mode:AVAudioSessionModeDefault
+                        options:0
+                          error:&err];
+    } else {
+      [audioSession setCategory:AVAudioSessionCategoryPlayback error:&err];
+    }
+    [audioSession
+          setActive:NO
+        withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
+              error:&err];
   }
-  [audioSession
-        setActive:NO
-      withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
-            error:&err];
 }
 
 @end
