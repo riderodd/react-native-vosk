@@ -11,6 +11,16 @@ export type VoskOptions = {
    * Timeout in milliseconds to listen.
    */
   timeout?: number;
+  /**
+   * iOS only. Whether the module configures `AVAudioSession` itself.
+   *
+   * Defaults to `true`, which sets the session to `record` / `measurement`
+   * while listening and hands it back as `playback`, deactivated, on stop. Set
+   * it to `false` when the application configures the session itself — playing
+   * a sound while listening needs a category carrying an output route, which
+   * `record` does not have.
+   */
+  manageAudioSession?: boolean;
 };
 
 export interface Spec extends TurboModule {

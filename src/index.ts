@@ -54,6 +54,9 @@ async function requestRecordPermission() {
  *      grammar: ['cool', 'application', '[unk]'],
  *      timeout: 5000,
  *   }).catch(e => console.log(e));
+ *
+ *   // iOS: keep the audio session the application declared
+ *   start({ manageAudioSession: false });
  */
 export function start(options?: VoskOptions) {
   return requestRecordPermission().then((granted) => {

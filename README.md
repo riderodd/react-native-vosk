@@ -198,6 +198,7 @@ vosk
 | ----------- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `grammar`   | `string[]` | No       | Set of phrases the recognizer will seek on which is the closest one from the record, add `"[unk]"` to the set to recognize phrases striclty. |
 | `timeout`   | `int`      | No       | Timeout in milliseconds to listen.                                                                                                           |
+| `manageAudioSession` | `boolean` | No | iOS only. Whether the module configures `AVAudioSession` itself. Defaults to `true`. Set it to `false` when the application configures the session. |
 
 ### Events
 
@@ -263,6 +264,26 @@ vosk
   });
 
 // when done, remember to clean all listeners;
+```
+
+#### Playing a sound while listening (iOS)
+
+On iOS the module configures `AVAudioSession` as `record` / `measurement` when
+it starts, and hands it back as `playback`, deactivated, when it stops. That is
+the right session for an application that only listens, but `record` carries no
+output route: a player started under it never renders, and an application that
+has configured the session itself sees its settings replaced.
+
+Set `manageAudioSession` to `false` to keep the session the application
+declared — the module then touches it neither on start nor on stop. The
+application is responsible for a category that carries an input route, such as
+`playAndRecord`.
+
+```js
+vosk.start({
+  grammar: ['left', 'right', '[unk]'],
+  manageAudioSession: false,
+});
 ```
 
 #### [Complete example](https://github.com/riderodd/react-native-vosk/blob/main/example/src/App.tsx)
