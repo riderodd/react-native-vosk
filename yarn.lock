@@ -1913,10 +1913,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.39.5, @eslint/js@npm:^9.39.5":
+"@eslint/js@npm:9.39.5":
   version: 9.39.5
   resolution: "@eslint/js@npm:9.39.5"
   checksum: fb012ffa4be0e1eb3fea59e4df6394a2abc054c800554596a682e7086aec4dc3c39801b3a4c2f1aaeba097ab09c17d2f02bcdd47fdcd0120dc94af6e5c3b00c4
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@eslint/js@npm:10.0.1"
+  peerDependencies:
+    eslint: ^10.0.0
+  peerDependenciesMeta:
+    eslint:
+      optional: true
+  checksum: 5e60b80ec48d303c9273d5c2803ae3fe12fd5335d57d889d4f9df9249910a97e2921118403765bff26a00b734182437f91a0f6f552654cf12ad73bb49995e22e
   languageName: node
   linkType: hard
 
@@ -11718,7 +11730,7 @@ __metadata:
     "@commitlint/config-conventional": ^21.2.4
     "@eslint/compat": ^2.1.1
     "@eslint/eslintrc": ^3.3.7
-    "@eslint/js": ^9.39.5
+    "@eslint/js": ^10.0.1
     "@evilmartians/lefthook": ^2.2.2
     "@expo/config-plugins": ^54.0.6
     "@react-native-community/cli": 20.2.0
