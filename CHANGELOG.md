@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.2.0](https://github.com/riderodd/react-native-vosk/compare/v0.3.1...v2.2.0) (2026-11-09)
+
+### Features
+
+* **ios:** let the application own AVAudioSession ([#168](https://github.com/riderodd/react-native-vosk/issues/168)) ([7afb6e5](https://github.com/riderodd/react-native-vosk/commit/7afb6e5ec3b787e5330a89f32adef526d074f1c6)), closes [#167](https://github.com/riderodd/react-native-vosk/issues/167)
+
 ## <small>2.1.7 (2025-11-17)</small>
 
 * fix: Fix format rate error on iOS (#104) ([d8fe8b0](https://github.com/riderodd/react-native-vosk/commit/d8fe8b0)), closes [#104](https://github.com/riderodd/react-native-vosk/issues/104)
