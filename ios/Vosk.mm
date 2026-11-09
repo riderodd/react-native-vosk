@@ -126,7 +126,7 @@ RCT_EXPORT_MODULE()
     timeoutMs = *(options->timeout());
   }
   // When false, the application owns AVAudioSession: the module configures
-  // neither its category here nor on stop. Kept for the whole session so that
+  // neither its category nor its activation, here or on stop. Kept for the whole session so that
   // stop undoes exactly what start did.
   _managesAudioSession = YES;
   if (options && options->manageAudioSession()) {
@@ -175,7 +175,7 @@ RCT_EXPORT_MODULE()
     }
     dispatch_async(dispatch_get_main_queue(), ^{ // proceed on main
       NSError *actErr = nil;
-      if (![audioSession setActive:YES error:&actErr]) {
+      if (self->_managesAudioSession && ![audioSession setActive:YES error:&actErr]) {
         NSString *msg = [NSString stringWithFormat:@"Failed to activate audio session: %@", actErr.localizedDescription];
         [self emitOnError:msg];
         self->_isStarting = NO;
