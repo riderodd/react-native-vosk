@@ -31,14 +31,17 @@ Commits must follow Conventional Commits (enforced by commitlint via lefthook). 
 ## Architecture
 
 **JS layer** (`src/`)
+
 - `NativeVosk.ts` is the codegen spec (`codegenConfig.name = VoskSpec`). It defines `VoskOptions` and the `Spec` interface, including events declared as `CodegenTypes.EventEmitter`. Any API change starts here, then both native modules must be updated to match the generated spec (`NativeVoskSpec` on Android, `JS::NativeVosk::*` types on iOS).
 - `index.ts` is the public API: thin wrappers around the native module. `start()` requests `RECORD_AUDIO` on Android before calling native; iOS relies on the system prompt.
 
 **Android** (`android/src/main/java/com/vosk/VoskModule.kt`)
+
 - Uses `com.alphacephei:vosk-android` (`Model`, `Recognizer`, `SpeechService`). `loadModel` first tries the path as a filesystem directory, then falls back to `StorageService.unpack` from app assets.
 - Models get into assets through `android/build.gradle`: it copies model folders into `build/generated/assets` and writes a `uuid` file per model (required by `StorageService`). Sources come from the `Vosk_models` Gradle property (set by the Expo plugin) or, as a fallback, by scanning the app's `assets/` folder for `model-*` directories.
 
 **iOS** (`ios/`)
+
 - `Vosk.mm` talks to the Vosk C API (`Vosk-API.h`, vendored `libvosk.xcframework`) and captures audio with `AVAudioEngine`. Recognition runs on a serial `_processingQueue`; events are emitted from the main queue. Tap installation retries until the input format stabilizes. `stopInternalWithoutEvents:` handles teardown without deadlocking when already on the processing queue.
 - `RNVoskModel.mm` loads the model from the given path, then from the main bundle, and also loads the bundled speaker model `vosk-model-spk-0.4`.
 - `manageAudioSession` (default `true`) controls whether the module sets `AVAudioSession` to record on start and back to playback on stop; `false` lets the host app own the session.
