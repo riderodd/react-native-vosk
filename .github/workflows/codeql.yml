@@ -23,11 +23,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language:
-          - actions
-          - javascript-typescript
-          - java-kotlin
-          - c-cpp
+        include:
+          - language: actions
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+          - language: java-kotlin
+            build-mode: manual
 
     steps:
       - name: Checkout
@@ -37,7 +39,23 @@ jobs:
         uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           languages: ${{ matrix.language }}
-          build-mode: none
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Setup
+        if: matrix.build-mode == 'manual'
+        uses: ./.github/actions/setup
+
+      - name: Install JDK
+        if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build Android library
+        if: matrix.build-mode == 'manual'
+        working-directory: example/android
+        run: ./gradlew --no-daemon :react-native-vosk:compileDebugKotlin
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
