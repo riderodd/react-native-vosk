@@ -10,6 +10,8 @@ Speech recognition module for react native using [Vosk](https://github.com/alpha
 npm install -S react-native-vosk
 ```
 
+Requires React Native 0.80 or newer (Expo SDK 54+). For older versions, use `react-native-vosk@1.0.0`.
+
 ### Models
 
 Vosk uses prebuilt models to perform speech recognition offline. You have to download the model(s) that you need on [Vosk official website](https://alphacephei.com/vosk/models)
