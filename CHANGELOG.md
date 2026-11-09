@@ -1,10 +1,20 @@
 # Changelog
 
-# [2.2.0](https://github.com/riderodd/react-native-vosk/compare/v0.3.1...v2.2.0) (2026-11-09)
+# [2.2.0](https://github.com/riderodd/react-native-vosk/compare/v2.1.7...v2.2.0) (2026-11-09)
 
 ### Features
 
 * **ios:** let the application own AVAudioSession ([#168](https://github.com/riderodd/react-native-vosk/issues/168)) ([7afb6e5](https://github.com/riderodd/react-native-vosk/commit/7afb6e5ec3b787e5330a89f32adef526d074f1c6)), closes [#167](https://github.com/riderodd/react-native-vosk/issues/167)
+
+### Bug Fixes
+
+* **ios:** fix audio permission handling on startup ([#163](https://github.com/riderodd/react-native-vosk/issues/163)) ([970d3d5](https://github.com/riderodd/react-native-vosk/commit/970d3d5))
+
+### Chores
+
+* upgrade react-native to 0.88.1 ([#170](https://github.com/riderodd/react-native-vosk/issues/170)) ([3610698](https://github.com/riderodd/react-native-vosk/commit/3610698))
+* update dependencies and fix vulnerabilities ([#169](https://github.com/riderodd/react-native-vosk/issues/169)) ([8e78fbb](https://github.com/riderodd/react-native-vosk/commit/8e78fbb))
+* publish to npm with trusted publishing ([#175](https://github.com/riderodd/react-native-vosk/issues/175)) ([69685b8](https://github.com/riderodd/react-native-vosk/commit/69685b8))
 
 ## <small>2.1.7 (2025-11-17)</small>
 
